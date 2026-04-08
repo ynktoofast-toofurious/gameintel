@@ -95,11 +95,8 @@ function embedReport() {
   }
 
   // Always use the Publish to Web embed URL (the only URL that works in iframes)
-  // Append filter params when available — display-only; PBI may or may not apply them
+  // Note: Publish to Web does NOT support URL filter parameters — they are ignored
   var fullUrl = CONFIG.powerbi.publicEmbedUrl;
-  if (filterStr) {
-    fullUrl += filterStr; // filterStr already starts with '&'
-  }
 
   // Create iframe
   var iframe = document.createElement("iframe");

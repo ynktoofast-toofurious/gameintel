@@ -1,5 +1,5 @@
 // ============================================================
-// Configuration ΓÇö Fill in your Azure AD + Power BI details
+// Configuration — Fill in your Azure AD + Power BI details
 // ============================================================
 const CONFIG = {
   // Azure AD / Microsoft Entra ID
