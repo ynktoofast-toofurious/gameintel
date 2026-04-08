@@ -239,21 +239,18 @@ function buildPbiFilters(filters) {
     });
   }
 
-  // Division filter (multiple teams)
-  if (filters.division && filters.division !== "All" && (!filters.team || filters.team === "All")) {
-    var teams = CONFIG.teamsByDivision[filters.division];
-    if (teams && teams.length > 0) {
-      result.push({
-        $schema: "http://powerbi.com/product/schema#basic",
-        target: {
-          table: CONFIG.filters.team.table,
-          column: CONFIG.filters.team.column
-        },
-        filterType: models.FilterType.Basic,
-        operator: "In",
-        values: teams
-      });
-    }
+  // Division filter
+  if (filters.division && filters.division !== "All") {
+    result.push({
+      $schema: "http://powerbi.com/product/schema#basic",
+      target: {
+        table: CONFIG.filters.division.table,
+        column: CONFIG.filters.division.column
+      },
+      filterType: models.FilterType.Basic,
+      operator: "In",
+      values: [filters.division]
+    });
   }
 
   // Player filter

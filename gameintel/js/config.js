@@ -38,7 +38,11 @@ const CONFIG = {
     },
     team: {
       table: "Teams",
-      column: "team_name"
+      column: "Team"
+    },
+    division: {
+      table: "Teams",
+      column: "Division"
     },
     player: {
       table: "nba_players",
