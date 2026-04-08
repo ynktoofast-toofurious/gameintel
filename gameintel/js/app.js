@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initFilters() {
-  // Populate Division dropdown
+  // Populate Division dropdown (if present)
   const divSelect = document.getElementById("filterDivision");
   if (divSelect) {
     CONFIG.divisions.forEach(div => {
@@ -62,6 +62,7 @@ function onDivisionChange() {
 
 function populateTeams(division) {
   const teamSelect = document.getElementById("filterTeam");
+  if (!teamSelect) return;
   teamSelect.innerHTML = '<option value="All">All Teams</option>';
   if (division === "All") {
     // All teams across all divisions
@@ -128,17 +129,14 @@ function applyQuickDate(range) {
 
 function loadSavedFilters() {
   const saved = sessionStorage.getItem("selectedFilters");
-  if (saved) {
-    const filters = JSON.parse(saved);
-    if (filters.dateStart) document.getElementById("filterDateStart").value = filters.dateStart;
-    if (filters.dateEnd) document.getElementById("filterDateEnd").value = filters.dateEnd;
-    if (filters.division) {
-      document.getElementById("filterDivision").value = filters.division;
-      populateTeams(filters.division);
-    }
-    if (filters.team) document.getElementById("filterTeam").value = filters.team;
-    if (filters.player) document.getElementById("filterPlayer").value = filters.player;
-  }
+  if (!saved) return;
+  const filters = JSON.parse(saved);
+  var el;
+  if (filters.dateStart && (el = document.getElementById("filterDateStart"))) el.value = filters.dateStart;
+  if (filters.dateEnd && (el = document.getElementById("filterDateEnd"))) el.value = filters.dateEnd;
+  if (filters.division && (el = document.getElementById("filterDivision"))) { el.value = filters.division; populateTeams(filters.division); }
+  if (filters.team && (el = document.getElementById("filterTeam"))) el.value = filters.team;
+  if (filters.player && (el = document.getElementById("filterPlayer"))) el.value = filters.player;
 }
 
 function getSelectedFilters() {
@@ -158,12 +156,12 @@ function viewReport() {
 }
 
 function resetFilters() {
-  document.getElementById("filterDateStart").value = "2025-10-21";
-  document.getElementById("filterDateEnd").value = "2026-04-12";
-  document.getElementById("filterDivision").value = "All";
-  populateTeams("All");
-  document.getElementById("filterTeam").value = "All";
-  document.getElementById("filterPlayer").value = "";
+  var el;
+  if ((el = document.getElementById("filterDateStart"))) el.value = "2025-10-21";
+  if ((el = document.getElementById("filterDateEnd"))) el.value = "2026-04-12";
+  if ((el = document.getElementById("filterDivision"))) { el.value = "All"; populateTeams("All"); }
+  if ((el = document.getElementById("filterTeam"))) el.value = "All";
+  if ((el = document.getElementById("filterPlayer"))) el.value = "";
   document.querySelectorAll("[data-range]").forEach(b => b.classList.remove("active"));
   sessionStorage.removeItem("selectedFilters");
 }
@@ -282,29 +280,20 @@ function parsePrompt(input) {
 }
 
 function applyParsedFilters(parsed) {
-  // Reset first
   resetFilters();
-
-  // Apply date range
+  var el;
   if (parsed.dateRange) {
-    document.getElementById("filterDateStart").value = parsed.dateRange.start;
-    document.getElementById("filterDateEnd").value = parsed.dateRange.end;
+    if ((el = document.getElementById("filterDateStart"))) el.value = parsed.dateRange.start;
+    if ((el = document.getElementById("filterDateEnd"))) el.value = parsed.dateRange.end;
   }
-
-  // Apply division
   if (parsed.division) {
-    document.getElementById("filterDivision").value = parsed.division;
-    populateTeams(parsed.division);
+    if ((el = document.getElementById("filterDivision"))) { el.value = parsed.division; populateTeams(parsed.division); }
   }
-
-  // Apply team
   if (parsed.team) {
-    document.getElementById("filterTeam").value = parsed.team;
+    if ((el = document.getElementById("filterTeam"))) el.value = parsed.team;
   }
-
-  // Apply player
   if (parsed.player) {
-    document.getElementById("filterPlayer").value = parsed.player;
+    if ((el = document.getElementById("filterPlayer"))) el.value = parsed.player;
   }
 }
 
