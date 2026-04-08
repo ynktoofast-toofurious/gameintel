@@ -3,84 +3,290 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>GameIntel — Sign In</title>
+  <title>Agentic BI Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
-<body class="login-page">
+<body>
 
-  <div class="login-container">
-    <!-- Left panel - branding -->
-    <div class="login-branding">
-      <div class="login-branding-content">
-        <div class="brand-logo">
-          <div class="logo-glow"></div>
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect x="4" y="4" width="56" height="56" rx="14" stroke="url(#brandGrad)" stroke-width="3"/>
-            <path d="M20 38L28 28L36 34L44 22" stroke="url(#brandGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="44" cy="22" r="4" fill="#00d4aa"/>
-            <defs>
-              <linearGradient id="brandGrad" x1="4" y1="4" x2="60" y2="60">
-                <stop stop-color="#00d4aa"/><stop offset=".5" stop-color="#388bfd"/><stop offset="1" stop-color="#a371f7"/>
-              </linearGradient>
-            </defs>
-          </svg>
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="home-hero">
+  <div class="container">
+    <span class="hero-badge fade-in">⚡ Production-Grade Architecture</span>
+    <h1 class="fade-in">AI-Powered <span class="gradient-text">Business Intelligence</span></h1>
+    <p class="fade-in">An agentic system that orchestrates Power BI and Snowflake through governed, multi-stage pipelines — from natural-language question to validated insight.</p>
+    <div class="hero-actions fade-in">
+      <a href="architecture.html" class="btn btn-gradient btn-lg">Explore Architecture</a>
+      <a href="chat.html" class="btn btn-secondary btn-lg">💬 Try the Chat</a>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Overview Diagram -->
+<section class="home-section">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-label">System Overview</span>
+      <h2>Five-Layer Architecture</h2>
+      <p>Each layer has a single responsibility and communicates only with its immediate neighbors.</p>
+    </div>
+    <div class="arch-flow fade-in">
+      <div class="arch-flow-layer blue">
+        <div class="arch-flow-num">1</div>
+        <div class="arch-flow-content">
+          <h3>Chat UI</h3>
+          <p>VS Code · Web · Teams</p>
         </div>
-        <h1>GameIntel</h1>
-        <p class="tagline">One Platform. Every Sport. Smarter Insights.</p>
-        <div class="brand-stats">
-          <div class="brand-stat">
-            <span class="stat-number">5+</span>
-            <span class="stat-label">Sports</span>
+      </div>
+      <div class="arch-flow-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+      <div class="arch-flow-layer green">
+        <div class="arch-flow-num">2</div>
+        <div class="arch-flow-content">
+          <h3>Orchestration</h3>
+          <p>Intent → Route → Build → Validate</p>
+        </div>
+      </div>
+      <div class="arch-flow-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+      <div class="arch-flow-layer purple">
+        <div class="arch-flow-num">3</div>
+        <div class="arch-flow-content">
+          <h3>MCP Tools</h3>
+          <p>List · Metadata · Generate · Validate · Execute · Export</p>
+        </div>
+      </div>
+      <div class="arch-flow-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M7 5v14M17 5v14"/><polyline points="4 16 7 19 10 16"/><polyline points="14 16 17 19 20 16"/></svg>
+      </div>
+      <div class="arch-flow-split">
+        <div class="arch-flow-layer orange">
+          <div class="arch-flow-num">4a</div>
+          <div class="arch-flow-content">
+            <h3>Power BI</h3>
+            <p>Semantic Models · DAX</p>
           </div>
-          <div class="brand-stat">
-            <span class="stat-number">Live</span>
-            <span class="stat-label">Analytics</span>
-          </div>
-          <div class="brand-stat">
-            <span class="stat-number">AI</span>
-            <span class="stat-label">Powered</span>
+        </div>
+        <div class="arch-flow-layer orange">
+          <div class="arch-flow-num">4b</div>
+          <div class="arch-flow-content">
+            <h3>Snowflake</h3>
+            <p>SQL API · Governed Execution</p>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Right panel - login form -->
-    <div class="login-form-panel">
-      <div class="login-form-content">
-        <h2>Welcome back</h2>
-        <p class="text-muted">Sign in to access your GameIntel dashboard</p>
-
-        <div id="loginError" class="login-error" style="display:none"></div>
-
-        <form class="login-form" onsubmit="event.preventDefault(); signIn();">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your username" autocomplete="username" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
-          </div>
-          <button id="loginBtn" type="submit" class="btn btn-login">
-            Sign In
-          </button>
-        </form>
-
-        <div class="login-divider">
-          <span>Authorized Users Only</span>
+      <div class="arch-flow-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+      <div class="arch-flow-layer pink">
+        <div class="arch-flow-num">5</div>
+        <div class="arch-flow-content">
+          <h3>Presentation</h3>
+          <p>Markdown · Tables · Charts · Reports · Exports</p>
         </div>
-
-        <p class="login-footer-text">
-          Contact your administrator if you need access.
-        </p>
       </div>
     </div>
   </div>
+</section>
 
-  <script src="js/users.js"></script>
-  <script src="js/auth.js"></script>
+<!-- Pipeline Stages -->
+<section class="home-section alt">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-label">Request Pipeline</span>
+      <h2>Four-Stage Processing</h2>
+      <p>Every user question flows through a governed, multi-stage pipeline.</p>
+    </div>
+    <div class="pipeline-grid fade-in">
+      <div class="pipeline-card">
+        <div class="pipeline-num">01</div>
+        <h3>Classify Intent</h3>
+        <p>Parse the user's natural-language question to determine intent type — KPI lookup, trend analysis, data exploration, or report generation.</p>
+      </div>
+      <div class="pipeline-card">
+        <div class="pipeline-num">02</div>
+        <h3>Route to Source</h3>
+        <p>Decide whether to query Power BI semantic models or Snowflake based on the intent and available metadata.</p>
+      </div>
+      <div class="pipeline-card">
+        <div class="pipeline-num">03</div>
+        <h3>Build &amp; Validate</h3>
+        <p>Construct a source-specific prompt with metadata, few-shot examples, and business glossary. Validate all generated queries before execution.</p>
+      </div>
+      <div class="pipeline-card">
+        <div class="pipeline-num">04</div>
+        <h3>Execute &amp; Present</h3>
+        <p>Run the validated query against the data source, format results with interpretation, and return actionable output.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 Production Additions -->
+<section class="home-section">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-label">Production Readiness</span>
+      <h2>10 Production Additions</h2>
+      <p>Beyond the core pipeline — the capabilities that make this production-grade.</p>
+    </div>
+    <div class="additions-grid fade-in">
+      <div class="addition-item">
+        <div class="addition-icon blue">🔑</div>
+        <div>
+          <h4>Auth &amp; Token Exchange</h4>
+          <p>Short-lived user tokens exchanged for service credentials. No raw secrets in the extension.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon green">🛡️</div>
+        <div>
+          <h4>Query Validation</h4>
+          <p>Every generated query is validated against a policy engine before execution.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon purple">📋</div>
+        <div>
+          <h4>Audit Trail</h4>
+          <p>Full logging of every request — who asked, what ran, what was returned.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon orange">⚡</div>
+        <div>
+          <h4>Caching Layer</h4>
+          <p>Metadata and frequent queries cached to reduce latency and API calls.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon blue">🗺️</div>
+        <div>
+          <h4>Semantic Routing</h4>
+          <p>Embedding-based routing maps questions to the right data source automatically.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon green">📖</div>
+        <div>
+          <h4>Business Glossary</h4>
+          <p>Domain terms resolved to exact column references — "PMPM" becomes the right measure.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon purple">🧠</div>
+        <div>
+          <h4>Few-Shot Examples</h4>
+          <p>Curated question→query pairs injected into prompts for higher accuracy.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon orange">🚦</div>
+        <div>
+          <h4>Human-in-the-Loop</h4>
+          <p>Dangerous or ambiguous operations require explicit user approval before execution.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon blue">📊</div>
+        <div>
+          <h4>Multi-Format Output</h4>
+          <p>Plain English, query, data table, chart suggestion, and export — all in one response.</p>
+        </div>
+      </div>
+      <div class="addition-item">
+        <div class="addition-icon green">🔄</div>
+        <div>
+          <h4>Session Memory</h4>
+          <p>Conversation context maintained so follow-up questions resolve correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Page Navigation -->
+<section class="home-section alt">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-label">Documentation</span>
+      <h2>Deep Dives</h2>
+      <p>Explore each layer in detail.</p>
+    </div>
+    <div class="nav-cards fade-in">
+      <a href="architecture.html" class="nav-card">
+        <div class="nav-card-icon blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <h3>Architecture</h3>
+        <p>Five-layer system design, layer responsibilities, and end-to-end data flow examples.</p>
+      </a>
+      <a href="orchestration.html" class="nav-card">
+        <div class="nav-card-icon green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <h3>Orchestration</h3>
+        <p>Backend service design, four-stage pipeline, intent classification, and prompt building.</p>
+      </a>
+      <a href="tools.html" class="nav-card">
+        <div class="nav-card-icon purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3>Tools &amp; MCP</h3>
+        <p>MCP tool catalog, configuration, tool details, and extension points.</p>
+      </a>
+      <a href="governance.html" class="nav-card">
+        <div class="nav-card-icon orange">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Governance</h3>
+        <p>Auth model, query validation, policy engine, human-in-the-loop, and audit trail.</p>
+      </a>
+      <a href="routing.html" class="nav-card">
+        <div class="nav-card-icon pink">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>Routing &amp; Metadata</h3>
+        <p>Semantic routing, metadata service, business glossary, and few-shot examples.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal &middot; Architecture documentation for production AI-powered analytics.</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tools &amp; MCP — Agentic BI Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <span class="section-label">Tool Layer</span>
+    <h1 class="fade-in">Tools &amp; MCP</h1>
+    <p class="fade-in">The Model Context Protocol tool catalog — discrete, reusable capabilities the agent can invoke.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="page-layout">
+      <aside class="sidebar">
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#catalog">Tool Catalog</a></li>
+          <li><a href="#config">Configuration</a></li>
+          <li><a href="#list-models">list-semantic-models</a></li>
+          <li><a href="#get-measures">get-measures</a></li>
+          <li><a href="#generate-dax">generate-dax</a></li>
+          <li><a href="#generate-sql">generate-sql</a></li>
+          <li><a href="#execute">execute-preview</a></li>
+          <li><a href="#export">save-export</a></li>
+          <li><a href="#extension">Extension Points</a></li>
+        </ul>
+      </aside>
+
+      <div>
+        <div id="overview" class="fade-in">
+          <h2>Overview</h2>
+          <p>MCP tools are the atomic building blocks of the Agentic BI system. Each tool performs a single, well-defined action and returns structured output. The orchestration layer composes these tools to fulfill user requests.</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Each tool has a defined input schema and output format</span></li>
+            <li><span class="feature-check">✓</span><span>Tools are stateless — all context passed via parameters</span></li>
+            <li><span class="feature-check">✓</span><span>Tools can be called by the LLM agent or by the orchestration service directly</span></li>
+            <li><span class="feature-check">✓</span><span>New tools can be added without modifying the orchestration layer</span></li>
+          </ul>
+        </div>
+
+        <div id="catalog" class="fade-in mt-4">
+          <h2>Tool Catalog</h2>
+          <table class="data-table mt-2">
+            <thead><tr><th>Tool</th><th>Source</th><th>Action</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td><code>list-semantic-models</code></td><td><span class="tag tag-blue">PBI</span></td><td>Enumerate datasets in a workspace</td><td>Model ID, name, workspace</td></tr>
+              <tr><td><code>get-measures</code></td><td><span class="tag tag-blue">PBI</span></td><td>Retrieve measures from a model</td><td>Measure name, expression, description</td></tr>
+              <tr><td><code>generate-dax</code></td><td><span class="tag tag-blue">PBI</span></td><td>Generate a DAX EVALUATE query</td><td>DAX query string</td></tr>
+              <tr><td><code>generate-sql</code></td><td><span class="tag tag-green">SF</span></td><td>Generate a SQL SELECT query</td><td>SQL query string</td></tr>
+              <tr><td><code>validate-query</code></td><td><span class="tag tag-orange">Both</span></td><td>Check query against policy rules</td><td>Pass/fail + reasons</td></tr>
+              <tr><td><code>execute-preview</code></td><td><span class="tag tag-orange">Both</span></td><td>Run query with row limit</td><td>Result rows (capped)</td></tr>
+              <tr><td><code>save-export</code></td><td><span class="tag tag-orange">Both</span></td><td>Export results to file/report</td><td>Export URI or report URL</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="config" class="fade-in mt-4">
+          <h2>MCP Configuration</h2>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>mcp.json</span><span class="tag tag-purple">Config</span></div>
+            <pre>{
+  <span class="str">"servers"</span>: {
+    <span class="str">"agentic-bi"</span>: {
+      <span class="str">"type"</span>: <span class="str">"stdio"</span>,
+      <span class="str">"command"</span>: <span class="str">"node"</span>,
+      <span class="str">"args"</span>: [<span class="str">"./mcp-server/index.js"</span>],
+      <span class="str">"env"</span>: {
+        <span class="str">"PBI_TENANT_ID"</span>: <span class="str">"${env:PBI_TENANT_ID}"</span>,
+        <span class="str">"PBI_CLIENT_ID"</span>: <span class="str">"${env:PBI_CLIENT_ID}"</span>,
+        <span class="str">"SNOWFLAKE_ACCOUNT"</span>: <span class="str">"${env:SNOWFLAKE_ACCOUNT}"</span>
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div id="list-models" class="fade-in mt-4">
+          <h2><code>list-semantic-models</code></h2>
+          <p>Enumerate all Power BI semantic models available to the authenticated user.</p>
+          <div class="grid-2 mt-2">
+            <div class="code-block">
+              <div class="code-header"><span>Input</span></div>
+              <pre>{
+  <span class="str">"workspaceId"</span>: <span class="str">"optional — filter to workspace"</span>
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span>Output</span></div>
+              <pre>[
+  {
+    <span class="str">"id"</span>: <span class="str">"abc-123"</span>,
+    <span class="str">"name"</span>: <span class="str">"ROME_PROD_LSM"</span>,
+    <span class="str">"workspace"</span>: <span class="str">"Analytics Prod"</span>
+  }
+]</pre>
+            </div>
+          </div>
+        </div>
+
+        <div id="get-measures" class="fade-in mt-4">
+          <h2><code>get-measures</code></h2>
+          <p>Retrieve all measures from a specific semantic model, including DAX expressions and descriptions.</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Output Example</span></div>
+            <pre>[
+  {
+    <span class="str">"name"</span>: <span class="str">"PMPM"</span>,
+    <span class="str">"expression"</span>: <span class="str">"DIVIDE([Total Claims], [Member Months])"</span>,
+    <span class="str">"description"</span>: <span class="str">"Per Member Per Month cost"</span>,
+    <span class="str">"table"</span>: <span class="str">"Fact Claims"</span>
+  }
+]</pre>
+          </div>
+        </div>
+
+        <div id="generate-dax" class="fade-in mt-4">
+          <h2><code>generate-dax</code></h2>
+          <p>Generate a DAX EVALUATE query based on a natural-language description and model context.</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Input → Output</span><span class="tag tag-green">DAX</span></div>
+            <pre><span class="cmt">// Input:</span>
+{
+  <span class="str">"question"</span>: <span class="str">"Top 10 clients by total claims"</span>,
+  <span class="str">"modelId"</span>: <span class="str">"abc-123"</span>,
+  <span class="str">"metadata"</span>: { ... }
+}
+
+<span class="cmt">// Output:</span>
+{
+  <span class="str">"dax"</span>: <span class="str">"EVALUATE TOPN(10, SUMMARIZECOLUMNS('Dim Client'[Client Name], \"Total Claims\", [Total Claims Amount]), [Total Claims Amount], DESC)"</span>,
+  <span class="str">"confidence"</span>: <span class="str">0.92</span>
+}</pre>
+          </div>
+        </div>
+
+        <div id="generate-sql" class="fade-in mt-4">
+          <h2><code>generate-sql</code></h2>
+          <p>Generate a Snowflake SQL query based on a natural-language description and schema context.</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Input → Output</span><span class="tag tag-blue">SQL</span></div>
+            <pre><span class="cmt">// Input:</span>
+{
+  <span class="str">"question"</span>: <span class="str">"Claims denied in Q3 2025 by denial reason"</span>,
+  <span class="str">"schema"</span>: { ... }
+}
+
+<span class="cmt">// Output:</span>
+{
+  <span class="str">"sql"</span>: <span class="str">"SELECT denial_reason, COUNT(*) as denied_count FROM claims WHERE status = 'DENIED' AND claim_date BETWEEN '2025-07-01' AND '2025-09-30' GROUP BY denial_reason ORDER BY denied_count DESC"</span>,
+  <span class="str">"confidence"</span>: <span class="str">0.88</span>
+}</pre>
+          </div>
+        </div>
+
+        <div id="execute" class="fade-in mt-4">
+          <h2><code>execute-preview</code></h2>
+          <p>Execute a validated query and return capped results. Always enforces row limits.</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Default row limit: 100 rows</span></li>
+            <li><span class="feature-check">✓</span><span>Query must pass validation before execution</span></li>
+            <li><span class="feature-check">✓</span><span>Returns column types for proper formatting</span></li>
+            <li><span class="feature-check">✓</span><span>Includes execution duration in metadata</span></li>
+          </ul>
+        </div>
+
+        <div id="export" class="fade-in mt-4">
+          <h2><code>save-export</code></h2>
+          <p>Export query results or create an embedded report link.</p>
+          <div class="grid-2 mt-2">
+            <div class="card">
+              <h3>CSV Export</h3>
+              <p>Full query results exported to a local CSV file. Returns the file path.</p>
+            </div>
+            <div class="card">
+              <h3>Report Link</h3>
+              <p>Generate a Power BI embedded report URL with pre-applied filters matching the query context.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="extension" class="fade-in mt-4">
+          <h2>Extension Points</h2>
+          <p>Add new tools without modifying the orchestration service:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Adding a New Tool</span></div>
+            <pre><span class="cmt">// 1. Define the tool schema</span>
+{
+  <span class="str">"name"</span>: <span class="str">"get-anomalies"</span>,
+  <span class="str">"description"</span>: <span class="str">"Detect statistical anomalies in a dataset"</span>,
+  <span class="str">"inputSchema"</span>: { ... },
+  <span class="str">"outputSchema"</span>: { ... }
+}
+
+<span class="cmt">// 2. Implement the handler</span>
+<span class="cmt">// 3. Register in the MCP server</span>
+<span class="cmt">// 4. The orchestration layer auto-discovers it</span></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

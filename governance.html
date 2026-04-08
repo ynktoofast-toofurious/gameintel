@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Governance — Agentic BI Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <span class="section-label">Security &amp; Policy</span>
+    <h1 class="fade-in">Governance</h1>
+    <p class="fade-in">Authentication, query validation, policy enforcement, human-in-the-loop approvals, and complete audit trails.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="page-layout">
+      <aside class="sidebar">
+        <ul>
+          <li><a href="#auth">Auth Model</a></li>
+          <li><a href="#validation">Query Validation</a></li>
+          <li><a href="#policy">Policy Engine</a></li>
+          <li><a href="#hitl">Human-in-the-Loop</a></li>
+          <li><a href="#audit">Audit Trail</a></li>
+          <li><a href="#rls">Row-Level Security</a></li>
+        </ul>
+      </aside>
+
+      <div>
+        <div id="auth" class="fade-in">
+          <h2>Auth Model</h2>
+          <p>The system uses a layered authentication model where user identity flows through every layer:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Auth Flow</span></div>
+            <pre><span class="str">User</span> → VS Code (Azure AD SSO)
+    → <span class="str">Bearer token</span> sent to Orchestration API
+    → API validates token, extracts user identity
+    → API uses <span class="str">service principal</span> for downstream calls
+    → Power BI / Snowflake enforce <span class="str">RLS / role-based access</span></pre>
+          </div>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>User authenticates via Azure AD / Entra ID SSO</span></li>
+            <li><span class="feature-check">✓</span><span>Short-lived bearer tokens — no stored passwords</span></li>
+            <li><span class="feature-check">✓</span><span>Service principal with least-privilege scopes for PBI/Snowflake</span></li>
+            <li><span class="feature-check">✓</span><span>User identity preserved for audit and RLS enforcement</span></li>
+          </ul>
+        </div>
+
+        <div id="validation" class="fade-in mt-4">
+          <h2>Query Validation</h2>
+          <p>Every generated query is validated <strong>before execution</strong>. The validator checks for:</p>
+          <table class="data-table mt-2">
+            <thead><tr><th>Check</th><th>Description</th><th>Action on Fail</th></tr></thead>
+            <tbody>
+              <tr><td><code>schema_whitelist</code></td><td>Query only references allowed tables/schemas</td><td>Block + explain</td></tr>
+              <tr><td><code>no_mutations</code></td><td>No INSERT, UPDATE, DELETE, DROP, TRUNCATE</td><td>Block + explain</td></tr>
+              <tr><td><code>row_limit</code></td><td>LIMIT/TOP clause enforced (max 10,000)</td><td>Auto-inject limit</td></tr>
+              <tr><td><code>no_cross_join</code></td><td>Prevent accidental cartesian products</td><td>Block + explain</td></tr>
+              <tr><td><code>cost_estimate</code></td><td>Estimated scan size below threshold</td><td>Warn + require approval</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="policy" class="fade-in mt-4">
+          <h2>Policy Engine</h2>
+          <p>Policies are defined as JSON rules and evaluated at runtime:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Policy Example</span><span class="tag tag-orange">JSON</span></div>
+            <pre>{
+  <span class="str">"name"</span>: <span class="str">"block-pii-tables"</span>,
+  <span class="str">"description"</span>: <span class="str">"Prevent access to PII-containing tables"</span>,
+  <span class="str">"condition"</span>: {
+    <span class="str">"tables_referenced"</span>: {
+      <span class="str">"contains_any"</span>: [<span class="str">"dim_patient"</span>, <span class="str">"dim_member_ssn"</span>]
+    }
+  },
+  <span class="str">"action"</span>: <span class="str">"block"</span>,
+  <span class="str">"message"</span>: <span class="str">"Direct access to PII tables is not permitted. Use the anonymized views instead."</span>
+}</pre>
+          </div>
+          <div class="card-grid mt-3">
+            <div class="card">
+              <h3>Role-Based Policies</h3>
+              <p>Different users see different data. Analysts get aggregated views, admins get detail-level access.</p>
+            </div>
+            <div class="card">
+              <h3>Cost Guardrails</h3>
+              <p>Queries exceeding estimated cost thresholds require explicit approval before execution.</p>
+            </div>
+            <div class="card">
+              <h3>Time-Based Restrictions</h3>
+              <p>Restrict heavy queries to off-peak hours. Lightweight queries run anytime.</p>
+            </div>
+            <div class="card">
+              <h3>Data Classification</h3>
+              <p>Tables tagged as PHI, PII, or Confidential have additional access checks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="hitl" class="fade-in mt-4">
+          <h2>Human-in-the-Loop</h2>
+          <p>Certain operations require explicit user approval before proceeding:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Approval Flow</span></div>
+            <pre><span class="cmt">// System detects a high-cost query</span>
+⚠️ <span class="str">"This query will scan ~2.4 TB. Estimated cost: $1.20."</span>
+   <span class="str">"Do you want to proceed?"</span>
+
+   [✅ Execute]  [❌ Cancel]  [📝 Modify]
+
+<span class="cmt">// User clicks Execute → query runs</span>
+<span class="cmt">// User clicks Modify → prompt for refinement</span></pre>
+          </div>
+          <p class="mt-2">Approval is required for:</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Queries exceeding cost threshold</span></li>
+            <li><span class="feature-check">✓</span><span>Full data exports (no row limit)</span></li>
+            <li><span class="feature-check">✓</span><span>Queries with low confidence scores (&lt; 0.7)</span></li>
+            <li><span class="feature-check">✓</span><span>First-time access to a new data source</span></li>
+          </ul>
+        </div>
+
+        <div id="audit" class="fade-in mt-4">
+          <h2>Audit Trail</h2>
+          <p>Every interaction is logged with full context for compliance and debugging:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Audit Record</span><span class="tag tag-green">JSON</span></div>
+            <pre>{
+  <span class="str">"timestamp"</span>: <span class="str">"2026-04-07T14:32:01Z"</span>,
+  <span class="str">"user"</span>: <span class="str">"jsmith@contoso.com"</span>,
+  <span class="str">"session_id"</span>: <span class="str">"sess_abc123"</span>,
+  <span class="str">"question"</span>: <span class="str">"Show PMPM by region for Q1"</span>,
+  <span class="str">"intent"</span>: <span class="str">"kpi_trend"</span>,
+  <span class="str">"source"</span>: <span class="str">"power_bi"</span>,
+  <span class="str">"query"</span>: <span class="str">"EVALUATE SUMMARIZECOLUMNS(...)"</span>,
+  <span class="str">"validation"</span>: <span class="str">"passed"</span>,
+  <span class="str">"rows_returned"</span>: 12,
+  <span class="str">"duration_ms"</span>: 340,
+  <span class="str">"status"</span>: <span class="str">"success"</span>
+}</pre>
+          </div>
+        </div>
+
+        <div id="rls" class="fade-in mt-4">
+          <h2>Row-Level Security</h2>
+          <p>Row-level security is enforced at the data layer, not in the application:</p>
+          <div class="grid-2 mt-2">
+            <div class="card">
+              <h3>Power BI RLS</h3>
+              <p>RLS roles defined in the semantic model. The service principal impersonates the user's identity so PBI enforces the correct filters automatically.</p>
+            </div>
+            <div class="card">
+              <h3>Snowflake Roles</h3>
+              <p>User identity mapped to Snowflake roles via the orchestration layer. Each role has specific warehouse, schema, and table grants.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

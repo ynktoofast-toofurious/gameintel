@@ -1,5 +1,5 @@
 // ============================================================
-// Authentication — Username/Password login
+// Authentication ΓÇö Username/Password login
 // Validates against USERS array (synced from REMUS.dbo.app_users)
 // ============================================================
 

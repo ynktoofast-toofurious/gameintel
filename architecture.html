@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Architecture — Agentic BI Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <span class="section-label">System Design</span>
+    <h1 class="fade-in">Architecture</h1>
+    <p class="fade-in">The five-layer architecture that separates concerns, enforces governance, and scales from prototype to production.</p>
+  </div>
+</div>
+
+<!-- Content -->
+<section>
+  <div class="container">
+    <div class="page-layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#diagram">System Diagram</a></li>
+          <li><a href="#layer-chat">Layer 1: Chat UI</a></li>
+          <li><a href="#layer-orch">Layer 2: Orchestration</a></li>
+          <li><a href="#layer-tool">Layer 3: Tool Layer</a></li>
+          <li><a href="#layer-data">Layer 4: Data Layer</a></li>
+          <li><a href="#layer-present">Layer 5: Presentation</a></li>
+          <li><a href="#dataflow">Data Flow</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <div>
+
+        <!-- Overview -->
+        <div id="overview" class="fade-in">
+          <h2>Overview</h2>
+          <p>The Agentic BI system is organized into five distinct layers. Each layer has a single responsibility and communicates only with its immediate neighbors. This separation ensures that security policies, business logic, and UI concerns never bleed into each other.</p>
+          <div class="card mt-3" style="border-color:var(--accent)">
+            <p style="color:#f0f6fc;font-weight:600;margin-bottom:.5rem">The Golden Rule</p>
+            <p>Treat the VS Code chat participant as <strong>just the front end/orchestrator</strong>, not the place where all business logic lives. VS Code chat participants own user interaction. Tool-like capabilities and MCP servers handle reusable, agent-invokable actions.</p>
+          </div>
+        </div>
+
+        <!-- System Diagram -->
+        <div id="diagram" class="fade-in mt-4">
+          <h2>System Diagram</h2>
+          <div class="arch-diagram">
+            <svg viewBox="0 0 900 520" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px">
+              <!-- Layer 1: Chat UI -->
+              <rect x="320" y="10" width="260" height="64" rx="12" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+              <text x="450" y="36" text-anchor="middle" fill="#58a6ff" font-size="11" font-weight="700" font-family="Inter,sans-serif">LAYER 1</text>
+              <text x="450" y="56" text-anchor="middle" fill="#f0f6fc" font-size="14" font-weight="700" font-family="Inter,sans-serif">VS Code Chat Participant</text>
+
+              <!-- Arrow 1→2 -->
+              <line x1="450" y1="74" x2="450" y2="110" stroke="#30363d" stroke-width="2" stroke-dasharray="6 4"/>
+              <polygon points="445,108 450,118 455,108" fill="#30363d"/>
+
+              <!-- Layer 2: Orchestration -->
+              <rect x="200" y="118" width="500" height="100" rx="12" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+              <text x="450" y="140" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="700" font-family="Inter,sans-serif">LAYER 2 — ORCHESTRATION SERVICE</text>
+              <rect x="220" y="152" width="110" height="32" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.3)" stroke-width="1"/>
+              <text x="275" y="172" text-anchor="middle" fill="#3fb950" font-size="10" font-family="Inter,sans-serif">Intent Classify</text>
+              <rect x="340" y="152" width="100" height="32" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.3)" stroke-width="1"/>
+              <text x="390" y="172" text-anchor="middle" fill="#3fb950" font-size="10" font-family="Inter,sans-serif">Route Source</text>
+              <rect x="450" y="152" width="100" height="32" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.3)" stroke-width="1"/>
+              <text x="500" y="172" text-anchor="middle" fill="#3fb950" font-size="10" font-family="Inter,sans-serif">Build Prompt</text>
+              <rect x="560" y="152" width="120" height="32" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.3)" stroke-width="1"/>
+              <text x="620" y="172" text-anchor="middle" fill="#3fb950" font-size="10" font-family="Inter,sans-serif">Validate &amp; Policy</text>
+              <text x="450" y="204" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Inter,sans-serif">Auth · Metadata · Caching · Audit Logging</text>
+
+              <!-- Arrow 2→3 -->
+              <line x1="450" y1="218" x2="450" y2="254" stroke="#30363d" stroke-width="2" stroke-dasharray="6 4"/>
+              <polygon points="445,252 450,262 455,252" fill="#30363d"/>
+
+              <!-- Layer 3: Tool Layer -->
+              <rect x="150" y="262" width="600" height="84" rx="12" fill="#161b22" stroke="#d2a8ff" stroke-width="2"/>
+              <text x="450" y="284" text-anchor="middle" fill="#d2a8ff" font-size="11" font-weight="700" font-family="Inter,sans-serif">LAYER 3 — MCP TOOLS &amp; ENDPOINTS</text>
+              <rect x="170" y="296" width="100" height="28" rx="6" fill="rgba(210,168,255,.08)" stroke="rgba(210,168,255,.25)" stroke-width="1"/>
+              <text x="220" y="314" text-anchor="middle" fill="#d2a8ff" font-size="9" font-family="Inter,sans-serif">List Models</text>
+              <rect x="280" y="296" width="100" height="28" rx="6" fill="rgba(210,168,255,.08)" stroke="rgba(210,168,255,.25)" stroke-width="1"/>
+              <text x="330" y="314" text-anchor="middle" fill="#d2a8ff" font-size="9" font-family="Inter,sans-serif">Get Metadata</text>
+              <rect x="390" y="296" width="100" height="28" rx="6" fill="rgba(210,168,255,.08)" stroke="rgba(210,168,255,.25)" stroke-width="1"/>
+              <text x="440" y="314" text-anchor="middle" fill="#d2a8ff" font-size="9" font-family="Inter,sans-serif">Gen SQL/DAX</text>
+              <rect x="500" y="296" width="100" height="28" rx="6" fill="rgba(210,168,255,.08)" stroke="rgba(210,168,255,.25)" stroke-width="1"/>
+              <text x="550" y="314" text-anchor="middle" fill="#d2a8ff" font-size="9" font-family="Inter,sans-serif">Validate Query</text>
+              <rect x="610" y="296" width="120" height="28" rx="6" fill="rgba(210,168,255,.08)" stroke="rgba(210,168,255,.25)" stroke-width="1"/>
+              <text x="670" y="314" text-anchor="middle" fill="#d2a8ff" font-size="9" font-family="Inter,sans-serif">Execute / Export</text>
+
+              <!-- Arrows 3→4 -->
+              <line x1="330" y1="346" x2="280" y2="390" stroke="#30363d" stroke-width="2" stroke-dasharray="6 4"/>
+              <polygon points="275,386 280,398 285,386" fill="#30363d"/>
+              <line x1="570" y1="346" x2="620" y2="390" stroke="#30363d" stroke-width="2" stroke-dasharray="6 4"/>
+              <polygon points="615,386 620,398 625,386" fill="#30363d"/>
+
+              <!-- Layer 4: Data Sources -->
+              <rect x="120" y="398" width="260" height="56" rx="12" fill="#161b22" stroke="#f0883e" stroke-width="2"/>
+              <text x="250" y="422" text-anchor="middle" fill="#f0883e" font-size="11" font-weight="700" font-family="Inter,sans-serif">POWER BI</text>
+              <text x="250" y="440" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Inter,sans-serif">Semantic Model · Execute Queries API</text>
+
+              <rect x="520" y="398" width="260" height="56" rx="12" fill="#161b22" stroke="#f0883e" stroke-width="2"/>
+              <text x="650" y="422" text-anchor="middle" fill="#f0883e" font-size="11" font-weight="700" font-family="Inter,sans-serif">SNOWFLAKE</text>
+              <text x="650" y="440" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Inter,sans-serif">SQL API · Governed Execution</text>
+
+              <!-- Layer 5: Presentation -->
+              <rect x="200" y="470" width="500" height="44" rx="12" fill="#161b22" stroke="#f778ba" stroke-width="2"/>
+              <text x="450" y="497" text-anchor="middle" fill="#f778ba" font-size="11" font-weight="700" font-family="Inter,sans-serif">LAYER 5 — PRESENTATION: Markdown · Tables · Charts · Embedded Reports · Exports</text>
+
+              <!-- Arrows 4→5 -->
+              <line x1="250" y1="454" x2="380" y2="470" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <line x1="650" y1="454" x2="520" y2="470" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4 3"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Layer Details -->
+        <div id="layer-chat" class="fade-in mt-4">
+          <h2><span class="text-accent">Layer 1</span> — Chat UI</h2>
+          <p>The VS Code chat participant is purely a front-end orchestrator. It owns the user interaction — collecting natural-language prompts, displaying responses, and managing conversation context.</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Respects the model the user selected in the chat UI (never hardcodes a model)</span></li>
+            <li><span class="feature-check">✓</span><span>Uses the model passed through the request object per VS Code LM docs</span></li>
+            <li><span class="feature-check">✓</span><span>Delegates all business logic to the orchestration layer</span></li>
+            <li><span class="feature-check">✓</span><span>Supports conversation memory per session</span></li>
+            <li><span class="feature-check">✓</span><span>Can be replaced by a web UI or Teams bot without changing backend</span></li>
+          </ul>
+        </div>
+
+        <div id="layer-orch" class="fade-in mt-4">
+          <h2><span class="text-green">Layer 2</span> — Orchestration Service</h2>
+          <p>A backend API service that sits between the chat UI and all data systems. This is the single enforcement point for security, governance, and business rules.</p>
+          <div class="card-grid mt-2">
+            <div class="card">
+              <h3>Intent Classification</h3>
+              <p>Parse the user's question to understand what they're asking: KPI lookup, trend analysis, data exploration, report generation, etc.</p>
+            </div>
+            <div class="card">
+              <h3>Source Routing</h3>
+              <p>Decide whether to query Power BI semantic model or Snowflake based on the nature of the question and available metadata.</p>
+            </div>
+            <div class="card">
+              <h3>Prompt Building</h3>
+              <p>Construct source-specific prompts with relevant metadata subset, few-shot examples, and business glossary context.</p>
+            </div>
+            <div class="card">
+              <h3>Validation &amp; Policy</h3>
+              <p>Validate generated queries before execution. Enforce row limits, deny dangerous operations, apply role-based restrictions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="layer-tool" class="fade-in mt-4">
+          <h2><span class="text-purple">Layer 3</span> — Tool Layer (MCP)</h2>
+          <p>Discrete, reusable tools exposed via the Model Context Protocol. Each tool does one thing well.</p>
+          <table class="data-table mt-2">
+            <thead><tr><th>Tool</th><th>Action</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td><code>list-semantic-models</code></td><td>Enumerate available Power BI datasets</td><td>Model IDs, names, workspace</td></tr>
+              <tr><td><code>get-measures</code></td><td>Retrieve measures from a semantic model</td><td>Measure definitions, descriptions</td></tr>
+              <tr><td><code>generate-dax</code></td><td>Produce validated DAX skeleton</td><td>DAX query string</td></tr>
+              <tr><td><code>generate-sql</code></td><td>Produce validated SQL query</td><td>SQL query string</td></tr>
+              <tr><td><code>execute-preview</code></td><td>Run query with row limit</td><td>Result rows (capped)</td></tr>
+              <tr><td><code>save-export</code></td><td>Export to file or create report link</td><td>Export URI / report URL</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="layer-data" class="fade-in mt-4">
+          <h2><span class="text-orange">Layer 4</span> — Data Layer</h2>
+          <div class="grid-2 mt-2">
+            <div class="card">
+              <h3>Power BI</h3>
+              <p>Access via the Execute Queries REST API against semantic models. Requires Azure AD / Entra app registration with proper scopes.</p>
+              <ul class="feature-list mt-2">
+                <li><span class="feature-check">✓</span><span>DAX query execution</span></li>
+                <li><span class="feature-check">✓</span><span>Row-level security preservation</span></li>
+                <li><span class="feature-check">✓</span><span>Business measure reuse</span></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Snowflake</h3>
+              <p>Access via the SQL API — submit, poll, cancel, fetch statements. Always through a policy layer with warehouse/role mapping.</p>
+              <ul class="feature-list mt-2">
+                <li><span class="feature-check">✓</span><span>Raw detail-level queries</span></li>
+                <li><span class="feature-check">✓</span><span>Exploratory analysis</span></li>
+                <li><span class="feature-check">✓</span><span>Schema whitelisting</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="layer-present" class="fade-in mt-4">
+          <h2><span class="text-pink">Layer 5</span> — Presentation</h2>
+          <p>Every response includes multiple output types, giving the user actionable results:</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span><strong>Plain-English interpretation</strong> — what the data means</span></li>
+            <li><span class="feature-check">✓</span><span><strong>Executed query</strong> — the actual SQL or DAX that ran</span></li>
+            <li><span class="feature-check">✓</span><span><strong>Result preview</strong> — first N rows in a formatted table</span></li>
+            <li><span class="feature-check">✓</span><span><strong>Recommended visual</strong> — chart type suggestion with config</span></li>
+            <li><span class="feature-check">✓</span><span><strong>Export artifact</strong> — CSV, embedded report link, or report config</span></li>
+          </ul>
+        </div>
+
+        <!-- Data Flow -->
+        <div id="dataflow" class="fade-in mt-4">
+          <h2>End-to-End Data Flow</h2>
+          <p>Two example scenarios showing how the pipeline works in practice:</p>
+
+          <div class="code-block mt-3">
+            <div class="code-header"><span>Scenario 1: KPI Query via Power BI</span><span class="tag tag-green">DAX</span></div>
+            <pre><span class="cmt">// User asks:</span>
+<span class="str">"Show top 20 clients by PMPM trend"</span>
+
+<span class="cmt">// Step 1 — Intent Classification</span>
+→ type: <span class="str">"kpi_trend"</span>, entities: [<span class="str">"clients"</span>, <span class="str">"PMPM"</span>]
+
+<span class="cmt">// Step 2 — Source Routing</span>
+→ source: <span class="str">"power_bi"</span>  <span class="cmt">// PMPM is a defined measure</span>
+
+<span class="cmt">// Step 3 — Prompt + Validate</span>
+→ DAX query generated and validated against policy
+
+<span class="cmt">// Step 4 — Execute + Present</span>
+→ Table of 20 clients with PMPM values, trend chart suggestion</pre>
+          </div>
+
+          <div class="code-block mt-3">
+            <div class="code-header"><span>Scenario 2: Exploration via Snowflake</span><span class="tag tag-blue">SQL</span></div>
+            <pre><span class="cmt">// User asks:</span>
+<span class="str">"How many claims were denied in Q3 by denial reason?"</span>
+
+<span class="cmt">// Step 1 — Intent Classification</span>
+→ type: <span class="str">"exploration"</span>, entities: [<span class="str">"claims"</span>, <span class="str">"denied"</span>, <span class="str">"Q3"</span>]
+
+<span class="cmt">// Step 2 — Source Routing</span>
+→ source: <span class="str">"snowflake"</span>  <span class="cmt">// detail-level, no PBI measure</span>
+
+<span class="cmt">// Step 3 — Prompt + Validate</span>
+→ SQL query generated, validated, schema whitelisted
+
+<span class="cmt">// Step 4 — Execute + Present</span>
+→ Table of denial reasons with counts, bar chart suggestion</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

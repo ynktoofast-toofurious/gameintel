@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Orchestration — Agentic BI Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <span class="section-label">Backend Service</span>
+    <h1 class="fade-in">Orchestration Layer</h1>
+    <p class="fade-in">The central nervous system — intent classification, source routing, prompt building, and validation in one governed service.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="page-layout">
+      <aside class="sidebar">
+        <ul>
+          <li><a href="#why">Why a Backend Service</a></li>
+          <li><a href="#pipeline">Four-Stage Pipeline</a></li>
+          <li><a href="#intent">Intent Classification</a></li>
+          <li><a href="#prompt-building">Prompt Building</a></li>
+          <li><a href="#execution-modes">Execution Modes</a></li>
+          <li><a href="#session-memory">Session Memory</a></li>
+        </ul>
+      </aside>
+
+      <div>
+
+        <div id="why" class="fade-in">
+          <h2>Why a Backend Service?</h2>
+          <p>Instead of letting the VS Code extension directly talk to Snowflake and Power BI, insert a small API service between them. This gives you <strong>one enforcement point</strong> instead of pushing security logic into the extension.</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Request Flow</span></div>
+            <pre>VS Code Chat Participant
+    │
+    ▼
+Orchestration API          ← <span class="cmt">auth, validation, routing, caching, audit</span>
+    │         │
+    ▼         ▼
+Power BI   Snowflake</pre>
+          </div>
+          <p class="mt-2">The orchestration API handles:</p>
+          <div class="card-grid mt-2">
+            <div class="card">
+              <div class="card-icon blue">🔑</div>
+              <h3>Auth Token Exchange</h3>
+              <p>Exchange short-lived user tokens for service credentials. No raw secrets ever reach the extension.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon green">🛡️</div>
+              <h3>Query Validation</h3>
+              <p>Validate every generated query against a policy engine. Block dangerous operations before they execute.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon purple">📋</div>
+              <h3>Audit Logging</h3>
+              <p>Log every request — who asked, what was generated, what ran, what was returned. Full traceability.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon orange">⚡</div>
+              <h3>Response Caching</h3>
+              <p>Cache metadata and frequent query results. Reduce latency and API call costs.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="pipeline" class="fade-in mt-4">
+          <h2>Four-Stage Pipeline</h2>
+          <p>Every user question goes through four sequential stages:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Pipeline Stages</span></div>
+            <pre><span class="str">1. CLASSIFY</span>  → Determine intent type and extract entities
+<span class="str">2. ROUTE</span>     → Pick data source (Power BI or Snowflake)
+<span class="str">3. BUILD</span>     → Construct prompt with metadata + validate output
+<span class="str">4. EXECUTE</span>   → Run query, format response, return to user</pre>
+          </div>
+          <p class="mt-2">Stages are <strong>sequential and gated</strong> — if validation fails at stage 3, the query never reaches stage 4. The pipeline short-circuits with an explanation of what went wrong.</p>
+        </div>
+
+        <div id="intent" class="fade-in mt-4">
+          <h2>Intent Classification</h2>
+          <p>The orchestration service classifies user questions into one of several intent types:</p>
+          <table class="data-table mt-2">
+            <thead><tr><th>Intent</th><th>Description</th><th>Preferred Source</th></tr></thead>
+            <tbody>
+              <tr><td><code>kpi_lookup</code></td><td>Single KPI value (e.g., "What is current PMPM?")</td><td>Power BI</td></tr>
+              <tr><td><code>kpi_trend</code></td><td>KPI over time (e.g., "Show PMPM trend by month")</td><td>Power BI</td></tr>
+              <tr><td><code>comparison</code></td><td>Compare segments (e.g., "PMPM by region")</td><td>Power BI</td></tr>
+              <tr><td><code>exploration</code></td><td>Ad-hoc detail query (e.g., "List denied claims in Q3")</td><td>Snowflake</td></tr>
+              <tr><td><code>report</code></td><td>Generate/embed a full report</td><td>Power BI</td></tr>
+              <tr><td><code>export</code></td><td>Export data to CSV/file</td><td>Either</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="prompt-building" class="fade-in mt-4">
+          <h2>Prompt Building</h2>
+          <p>Once the source is selected, the orchestration service constructs a targeted prompt:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Prompt Template (Power BI)</span><span class="tag tag-purple">DAX</span></div>
+            <pre><span class="cmt">SYSTEM:</span>
+You are a DAX expert. Generate a DAX EVALUATE query for the
+semantic model below. Return ONLY the DAX, no explanation.
+
+<span class="cmt">MODEL CONTEXT:</span>
+Tables: {<span class="str">relevant_tables</span>}
+Measures: {<span class="str">relevant_measures</span>}
+Business glossary: {<span class="str">term_definitions</span>}
+
+<span class="cmt">FEW-SHOT EXAMPLES:</span>
+Q: "current PMPM by LOB"
+A: EVALUATE SUMMARIZECOLUMNS(...)
+
+<span class="cmt">USER QUESTION:</span>
+{<span class="str">user_question</span>}</pre>
+          </div>
+          <p class="mt-2">Key principles:</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Only include <strong>relevant</strong> metadata — not the entire model schema</span></li>
+            <li><span class="feature-check">✓</span><span>Resolve business terms before they reach the LLM</span></li>
+            <li><span class="feature-check">✓</span><span>Include few-shot examples to guide output format</span></li>
+            <li><span class="feature-check">✓</span><span>Validate the generated query <strong>before</strong> execution</span></li>
+          </ul>
+        </div>
+
+        <div id="execution-modes" class="fade-in mt-4">
+          <h2>Execution Modes</h2>
+          <div class="grid-2 mt-2">
+            <div class="card">
+              <h3>Preview Mode (Default)</h3>
+              <p>Execute with a row limit (e.g., 100 rows). Return a preview table and chart suggestion. No side effects.</p>
+            </div>
+            <div class="card">
+              <h3>Full Export</h3>
+              <p>Execute the full query and export results to CSV or a Power BI embedded report URL. Requires explicit user confirmation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="session-memory" class="fade-in mt-4">
+          <h2>Session Memory</h2>
+          <p>The orchestration service maintains conversation context so follow-up questions resolve correctly:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Follow-up Resolution</span></div>
+            <pre><span class="cmt">Turn 1:</span> <span class="str">"Show PMPM by region"</span>
+→ Executes: SUMMARIZECOLUMNS('Dim Region'[Region], "PMPM", [PMPM])
+
+<span class="cmt">Turn 2:</span> <span class="str">"Break that down by LOB"</span>
+→ Resolves "that" to previous PMPM-by-region query
+→ Adds LOB dimension to the existing query</pre>
+          </div>
+          <p class="mt-2">Memory is scoped to the session and automatically cleared when the chat window closes.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

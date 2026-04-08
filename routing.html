@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Routing &amp; Metadata — Agentic BI Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#58a6ff"/><path d="M8 20V8l6 6 6-6v12" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Agentic BI
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="orchestration.html">Orchestration</a></li>
+      <li><a href="tools.html">Tools &amp; MCP</a></li>
+      <li><a href="governance.html">Governance</a></li>
+      <li><a href="routing.html">Routing &amp; Metadata</a></li>
+      <li><a href="gameintel/index.html" class="nav-chat-btn">🎮 GameIntel</a></li>
+      <li><a href="chat.html" class="nav-chat-btn">💬 Chat</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <span class="section-label">Intelligence Layer</span>
+    <h1 class="fade-in">Routing &amp; Metadata</h1>
+    <p class="fade-in">Semantic routing, the metadata service, the business glossary, and few-shot example curation.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="page-layout">
+      <aside class="sidebar">
+        <ul>
+          <li><a href="#routing">Semantic Routing</a></li>
+          <li><a href="#metadata">Metadata Service</a></li>
+          <li><a href="#glossary">Business Glossary</a></li>
+          <li><a href="#few-shot">Few-Shot Examples</a></li>
+          <li><a href="#caching">Caching Strategy</a></li>
+        </ul>
+      </aside>
+
+      <div>
+        <div id="routing" class="fade-in">
+          <h2>Semantic Routing</h2>
+          <p>The routing layer determines which data source can best answer a user's question. It uses a combination of keyword matching, embedding similarity, and metadata lookup.</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Routing Decision Tree</span></div>
+            <pre><span class="str">"Show PMPM by region"</span>
+    │
+    ├─ <span class="cmt">Does a PBI measure named "PMPM" exist?</span>
+    │  → <span class="str">YES</span> → Route to Power BI
+    │
+    ├─ <span class="cmt">Is the question about detail-level data?</span>
+    │  → Route to Snowflake
+    │
+    └─ <span class="cmt">Ambiguous?</span>
+       → Check embedding similarity against known query patterns
+       → Route to highest-confidence match</pre>
+          </div>
+          <p class="mt-2">Routing rules (in priority order):</p>
+          <table class="data-table mt-2">
+            <thead><tr><th>#</th><th>Rule</th><th>Routes To</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Question references a known PBI measure</td><td>Power BI</td></tr>
+              <tr><td>2</td><td>Question asks for a report or dashboard</td><td>Power BI</td></tr>
+              <tr><td>3</td><td>Question asks for detail rows or raw data</td><td>Snowflake</td></tr>
+              <tr><td>4</td><td>Question matches a few-shot example</td><td>Per example</td></tr>
+              <tr><td>5</td><td>Fallback: embedding similarity</td><td>Highest match</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="metadata" class="fade-in mt-4">
+          <h2>Metadata Service</h2>
+          <p>A central service that provides schema, measure, and relationship information from both data sources.</p>
+          <div class="card-grid mt-2">
+            <div class="card">
+              <div class="card-icon blue">📊</div>
+              <h3>Power BI Metadata</h3>
+              <p>Tables, columns, measures, relationships, descriptions — extracted via the PBI REST API or TMDL.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon green">❄️</div>
+              <h3>Snowflake Metadata</h3>
+              <p>Databases, schemas, tables, columns, data types — extracted from INFORMATION_SCHEMA.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon purple">🔗</div>
+              <h3>Cross-Source Mapping</h3>
+              <p>Map PBI measures to Snowflake tables so the system knows which Snowflake tables back which PBI models.</p>
+            </div>
+            <div class="card">
+              <div class="card-icon orange">⚡</div>
+              <h3>Metadata Cache</h3>
+              <p>Metadata refreshed on schedule (e.g., every 6 hours). Cached in-memory for sub-millisecond lookups.</p>
+            </div>
+          </div>
+          <p class="mt-3">The metadata service ensures prompts only include <strong>relevant</strong> context — not the entire schema. For a question about "PMPM by region," the prompt includes only the PMPM measure, region dimension, and their relationship.</p>
+        </div>
+
+        <div id="glossary" class="fade-in mt-4">
+          <h2>Business Glossary</h2>
+          <p>Domain-specific terms resolved to exact column/measure references before they reach the LLM:</p>
+          <table class="data-table mt-2">
+            <thead><tr><th>Business Term</th><th>Resolves To</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td><code>PMPM</code></td><td><code>[Fact Claims].[PMPM]</code> measure</td><td>Power BI</td></tr>
+              <tr><td><code>member months</code></td><td><code>[Fact Eligibility].[Member Months]</code> measure</td><td>Power BI</td></tr>
+              <tr><td><code>LOB</code></td><td><code>[Dim LOB].[Line of Business]</code> column</td><td>Both</td></tr>
+              <tr><td><code>region</code></td><td><code>[Dim Region].[Region Name]</code> column</td><td>Both</td></tr>
+              <tr><td><code>denied claims</code></td><td><code>claims WHERE status = 'DENIED'</code></td><td>Snowflake</td></tr>
+              <tr><td><code>high-cost claimant</code></td><td><code>claims WHERE amount > 50000</code></td><td>Snowflake</td></tr>
+            </tbody>
+          </table>
+          <p class="mt-2">The glossary is maintained as a JSON file and can be updated by business users without code changes.</p>
+        </div>
+
+        <div id="few-shot" class="fade-in mt-4">
+          <h2>Few-Shot Examples</h2>
+          <p>Curated question→query pairs injected into prompts. These dramatically improve LLM accuracy for domain-specific patterns:</p>
+          <div class="code-block mt-2">
+            <div class="code-header"><span>Few-Shot Example Set</span><span class="tag tag-green">DAX</span></div>
+            <pre><span class="cmt">// Example 1</span>
+Q: <span class="str">"What is the current PMPM by line of business?"</span>
+A: EVALUATE
+   SUMMARIZECOLUMNS(
+     'Dim LOB'[Line of Business],
+     <span class="str">"PMPM"</span>, [PMPM]
+   )
+
+<span class="cmt">// Example 2</span>
+Q: <span class="str">"Show top 10 clients by total claims amount"</span>
+A: EVALUATE
+   TOPN(
+     10,
+     SUMMARIZECOLUMNS(
+       'Dim Client'[Client Name],
+       <span class="str">"Total Claims"</span>, [Total Claims Amount]
+     ),
+     [Total Claims Amount], DESC
+   )</pre>
+          </div>
+          <p class="mt-2">Best practices for few-shot examples:</p>
+          <ul class="feature-list mt-2">
+            <li><span class="feature-check">✓</span><span>Include 3–5 examples per query pattern (KPI, trend, comparison, etc.)</span></li>
+            <li><span class="feature-check">✓</span><span>Only inject examples that match the detected intent type</span></li>
+            <li><span class="feature-check">✓</span><span>Keep examples verified — wrong examples poison all future queries</span></li>
+            <li><span class="feature-check">✓</span><span>Version-control examples alongside the metadata configuration</span></li>
+          </ul>
+        </div>
+
+        <div id="caching" class="fade-in mt-4">
+          <h2>Caching Strategy</h2>
+          <div class="grid-2 mt-2">
+            <div class="card">
+              <h3>Metadata Cache</h3>
+              <p>Schema, measures, glossary. Refreshed every 6 hours or on demand. Stored in-memory. TTL-based eviction.</p>
+            </div>
+            <div class="card">
+              <h3>Query Cache</h3>
+              <p>Recent query results keyed by normalized query string + user role. TTL: 15 minutes. Invalidated on data refresh.</p>
+            </div>
+          </div>
+          <p class="mt-2">Cache hits return in under 50ms. Cache misses fall through to the full pipeline.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Agentic BI Portal</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

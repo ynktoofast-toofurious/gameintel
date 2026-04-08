@@ -1,5 +1,5 @@
 // ============================================================
-// Power BI Embed — iframe with URL filter parameters
+// Power BI Embed ΓÇö iframe with URL filter parameters
 // Uses the user's Power BI session (no embed token needed)
 // ============================================================
 
@@ -72,7 +72,7 @@ function embedReport() {
   var embedContainer = document.getElementById("reportContainer");
   var loadingEl = document.getElementById("reportLoading");
 
-  // Use public embed URL (Publish to Web — no auth needed)
+  // Use public embed URL (Publish to Web ΓÇö no auth needed)
   var fullUrl = CONFIG.powerbi.publicEmbedUrl;
 
   // Append URL filters from saved session filters

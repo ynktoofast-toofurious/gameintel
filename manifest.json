@@ -1,9 +1,9 @@
 {
-  "name": "gameintel",
-  "short_name": "GameIntel",
-  "description": "Multi-sport intelligence platform — analytics, insights, and dashboards",
+  "name": "agentic-bi-portal",
+  "short_name": "Agentic BI",
+  "description": "AI-powered Business Intelligence — orchestrating Power BI and Snowflake through natural language",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#090c10",
-  "theme_color": "#00d4aa"
+  "theme_color": "#58a6ff"
 }

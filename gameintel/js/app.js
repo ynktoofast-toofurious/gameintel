@@ -31,7 +31,7 @@ function initFilters() {
     divSelect.addEventListener("change", onDivisionChange);
   }
 
-  // Team dropdown — populated based on division
+  // Team dropdown ΓÇö populated based on division
   const teamSelect = document.getElementById("filterTeam");
   if (teamSelect) {
     populateTeams("All");
@@ -311,11 +311,11 @@ function applyParsedFilters(parsed) {
 function showPromptResult(parsed, el) {
   if (parsed.matched.length === 0) {
     el.className = "prompt-result error";
-    el.innerHTML = '⚠️ Could not understand that query. Try mentioning a <strong>team name</strong>, <strong>division</strong>, <strong>player name</strong>, or <strong>time range</strong> (e.g. "Lakers last 7 days").';
+    el.innerHTML = 'ΓÜá∩╕Å Could not understand that query. Try mentioning a <strong>team name</strong>, <strong>division</strong>, <strong>player name</strong>, or <strong>time range</strong> (e.g. "Lakers last 7 days").';
     return;
   }
 
   const chips = parsed.matched.map(m => '<span class="prompt-match-chip">' + m + '</span>').join("");
   el.className = "prompt-result success";
-  el.innerHTML = '✅ Filters applied: ' + chips + ' <button class="btn btn-primary btn-sm" onclick="viewReport()" style="margin-left:.75rem">View Report →</button>';
+  el.innerHTML = 'Γ£à Filters applied: ' + chips + ' <button class="btn btn-primary btn-sm" onclick="viewReport()" style="margin-left:.75rem">View Report ΓåÆ</button>';
 }

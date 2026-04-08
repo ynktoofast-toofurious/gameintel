@@ -1,12 +1,12 @@
 // ============================================================
-// Configuration — Fill in your Azure AD + Power BI details
+// Configuration ΓÇö Fill in your Azure AD + Power BI details
 // ============================================================
 const CONFIG = {
   // Azure AD / Microsoft Entra ID
   auth: {
     clientId: "YOUR_CLIENT_ID",            // Application (client) ID from Azure AD app registration
     authority: "https://login.microsoftonline.com/YOUR_TENANT_ID", // Replace YOUR_TENANT_ID
-    redirectUri: window.location.origin + "/index.html",
+    redirectUri: window.location.origin + "/gameintel/index.html",
     scopes: [
       "https://analysis.windows.net/powerbi/api/Report.Read.All",
       "https://analysis.windows.net/powerbi/api/Dataset.Read.All"
