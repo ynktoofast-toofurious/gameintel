@@ -529,10 +529,15 @@ a:hover{color:var(--accent-light)}
 .section-divider{
   display:flex;align-items:center;gap:1rem;margin:1.5rem 0;
   color:var(--text-muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  cursor:pointer;list-style:none;
 }
+.section-divider::-webkit-details-marker{display:none}
 .section-divider::before,.section-divider::after{
   content:'';flex:1;height:1px;background:var(--border);
 }
+.manual-filters-collapse{margin-top:.5rem}
+.manual-filters-collapse[open] .section-divider svg{transform:rotate(180deg)}
+.manual-filters-collapse .section-divider svg{transition:transform .2s ease}
 
 /* Report page inline prompt bar */
 .report-prompt-bar{
