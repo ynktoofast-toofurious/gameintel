@@ -53,13 +53,24 @@
 
     showTypingIndicator();
 
-    // Simulate AI delay
-    const delay = 800 + Math.random() * 1200;
-    setTimeout(() => {
-      removeTypingIndicator();
-      const response = MockAI.getResponse(text);
-      addAIMessage(response);
-    }, delay);
+    // Use LLM provider (Groq or Mock fallback)
+    (async () => {
+      try {
+        const response = await LLMProvider.query(text);
+        removeTypingIndicator();
+        addAIMessage(response);
+      } catch (err) {
+        removeTypingIndicator();
+        addAIMessage({
+          source: 'error',
+          title: 'Error',
+          body: `Something went wrong: ${err.message}\n\nFalling back to demo mode.`,
+          query: null,
+          duration: null,
+          provider: 'error'
+        });
+      }
+    })();
   });
 
   // ----- Suggestion cards -----
@@ -132,11 +143,34 @@
     const msg = document.createElement('div');
     msg.className = 'message assistant';
 
-    const sourceTag = response.source === 'power_bi'
-      ? '<span class="meta-tag pbi">Power BI</span>'
-      : '<span class="meta-tag snowflake">Snowflake</span>';
+    let sourceTag = '';
+    if (response.provider === 'gemini') {
+      sourceTag = '<span class="meta-tag gemini">Gemini</span>';
+    } else if (response.provider === 'groq') {
+      sourceTag = '<span class="meta-tag groq">Groq</span>';
+    } else if (response.source === 'power_bi') {
+      sourceTag = '<span class="meta-tag pbi">Power BI</span>';
+    } else if (response.source === 'snowflake') {
+      sourceTag = '<span class="meta-tag snowflake">Snowflake</span>';
+    } else {
+      sourceTag = '<span class="meta-tag mock">Mock</span>';
+    }
 
     const bodyHTML = markdownToHTML(response.body);
+
+    const queryBlock = response.query
+      ? `<details style="margin-top: 12px;">
+          <summary style="cursor:pointer; color: var(--muted); font-size: 0.8rem;">View generated query</summary>
+          <pre><code>${escapeHTML(response.query)}</code></pre>
+        </details>`
+      : '';
+
+    const metaParts = [sourceTag];
+    if (response.model) metaParts.push(`<span>${response.model}</span>`);
+    if (response.duration) metaParts.push(`<span>${response.duration}ms</span>`);
+    if (response.tokens) metaParts.push(`<span>${response.tokens} tokens</span>`);
+    if (response.rows) metaParts.push(`<span>${response.rows} rows</span>`);
+    if (response.validated) metaParts.push('<span>&#10003; Validated</span>');
 
     msg.innerHTML = `
       <div class="message-header">
@@ -145,16 +179,10 @@
       </div>
       <div class="message-body">
         ${bodyHTML}
-        <details style="margin-top: 12px;">
-          <summary style="cursor:pointer; color: var(--muted); font-size: 0.8rem;">View generated query</summary>
-          <pre><code>${escapeHTML(response.query)}</code></pre>
-        </details>
+        ${queryBlock}
       </div>
       <div class="message-meta">
-        ${sourceTag}
-        <span>${response.duration}ms</span>
-        <span>${response.rows} rows</span>
-        <span>✓ Validated</span>
+        ${metaParts.join('')}
       </div>
     `;
     messagesEl.appendChild(msg);
@@ -266,4 +294,72 @@
   if (window.innerWidth <= 768) {
     sidebar.classList.add('collapsed');
   }
+
+  // ----- LLM Settings button -----
+  const llmSettingsBtn = $('#llmSettingsBtn');
+  const llmDropdown = $('#llmDropdown');
+
+  if (llmSettingsBtn) {
+    llmSettingsBtn.addEventListener('click', () => {
+      LLMProvider.showSettings();
+      // When modal closes, re-sync dropdown in case keys changed
+      const check = setInterval(() => {
+        if (!document.getElementById('llmSettingsModal')) {
+          clearInterval(check);
+          syncDropdown();
+        }
+      }, 300);
+    });
+  }
+
+  // Dropdown: instant provider switching
+  if (llmDropdown) {
+    llmDropdown.addEventListener('change', () => {
+      const val = llmDropdown.value;
+      const cfg = LLMProvider.getConfig();
+
+      // If selecting a live provider without a key, prompt settings
+      if (val === 'gemini' && !cfg.geminiKey) {
+        LLMProvider.showSettings();
+        llmDropdown.value = cfg.provider; // revert until key saved
+        const check = setInterval(() => {
+          if (!document.getElementById('llmSettingsModal')) {
+            clearInterval(check);
+            syncDropdown();
+          }
+        }, 300);
+        return;
+      }
+      if (val === 'groq' && !cfg.groqKey) {
+        LLMProvider.showSettings();
+        llmDropdown.value = cfg.provider;
+        const check = setInterval(() => {
+          if (!document.getElementById('llmSettingsModal')) {
+            clearInterval(check);
+            syncDropdown();
+          }
+        }, 300);
+        return;
+      }
+
+      LLMProvider.setProvider(val);
+      syncDropdown();
+    });
+  }
+
+  function syncDropdown() {
+    const cfg = LLMProvider.getConfig();
+    if (llmDropdown) {
+      llmDropdown.value = cfg.provider;
+      // Color the dropdown border by provider
+      llmDropdown.className = 'llm-dropdown llm-dropdown--' + cfg.provider;
+    }
+    // Update sidebar status
+    const name = LLMProvider.activeProviderName();
+    const statusSpan = document.querySelector('.connection-status span:last-child');
+    const statusDot = document.querySelector('.status-dot');
+    if (statusSpan) statusSpan.textContent = name === 'Mock AI' ? 'GameIntel NBA · Mock Mode' : `GameIntel NBA · ${name}`;
+    if (statusDot) statusDot.className = name === 'Mock AI' ? 'status-dot' : 'status-dot connected';
+  }
+  syncDropdown();
 })();

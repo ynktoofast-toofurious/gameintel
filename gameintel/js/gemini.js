@@ -6,15 +6,24 @@
 
 var GeminiAI = (function() {
 
-  var MODELS = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
+  var GEMINI_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-pro"
   ];
-  var BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
-  var STORAGE_KEY = "gemini_api_key";
+  var GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+  var GEMINI_STORAGE_KEY = "gemini_api_key";
+  var GROQ_STORAGE_KEY = "groq_api_key";
+  var GROQ_MODEL_KEY = "groq_model";
+  var PROVIDER_KEY = "ai_provider"; // "gemini" or "groq"
+  var GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+  var GROQ_MODELS = [
+    { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B" },
+    { id: "llama-3.1-8b-instant",    label: "Llama 3.1 8B (Fast)" },
+    { id: "mixtral-8x7b-32768",      label: "Mixtral 8x7B" }
+  ];
   var MAX_RETRIES = 2;
-  var RETRY_DELAY_MS = 5000; // 5 seconds between retries
+  var RETRY_DELAY_MS = 5000;
 
   // ============================================================
   // System Prompts
@@ -134,8 +143,8 @@ var GeminiAI = (function() {
   }
 
   function callGeminiWithModel(model, systemPrompt, userMessage, opts) {
-    var apiKey = getApiKey();
-    var url = BASE_URL + model + ":generateContent?key=" + apiKey;
+    var apiKey = getGeminiKey();
+    var url = GEMINI_BASE_URL + model + ":generateContent?key=" + apiKey;
 
     var config = {
       temperature: (opts && opts.temperature) || 0.7,
@@ -177,14 +186,14 @@ var GeminiAI = (function() {
 
   // Try each model in order; on rate limit, wait and try next model
   function callGemini(systemPrompt, userMessage, opts) {
-    var apiKey = getApiKey();
+    var apiKey = getGeminiKey();
     if (!apiKey) return Promise.reject(new Error("No Gemini API key configured"));
 
     var modelIndex = 0;
     var attempt = 0;
 
     function tryNext(lastErr) {
-      if (modelIndex >= MODELS.length) {
+      if (modelIndex >= GEMINI_MODELS.length) {
         // All models exhausted — retry from first model after delay
         if (attempt < MAX_RETRIES) {
           attempt++;
@@ -196,7 +205,7 @@ var GeminiAI = (function() {
         return Promise.reject(lastErr || new Error("All Gemini models exhausted after retries"));
       }
 
-      var model = MODELS[modelIndex];
+      var model = GEMINI_MODELS[modelIndex];
       console.log("[GeminiAI] Trying model:", model, "(attempt " + (attempt + 1) + ")");
 
       return callGeminiWithModel(model, systemPrompt, userMessage, opts)
@@ -212,6 +221,57 @@ var GeminiAI = (function() {
     }
 
     return tryNext(null);
+  }
+
+  // ============================================================
+  // Groq API Call
+  // ============================================================
+
+  function callGroq(systemPrompt, userMessage, opts) {
+    var apiKey = getGroqKey();
+    if (!apiKey) return Promise.reject(new Error("No Groq API key configured"));
+
+    var model = getGroqModel();
+    console.log("[GroqAI] Calling model:", model);
+
+    return fetch(GROQ_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage }
+        ],
+        temperature: (opts && opts.temperature) || 0.7,
+        max_tokens: (opts && opts.maxTokens) || 1024
+      })
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        return res.json().then(function(err) {
+          throw new Error((err.error && err.error.message) || "Groq API error " + res.status);
+        });
+      }
+      return res.json();
+    })
+    .then(function(data) {
+      var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (!text) throw new Error("Empty response from Groq");
+      return text;
+    });
+  }
+
+  // Unified call — routes to active provider
+  function callAI(systemPrompt, userMessage, opts) {
+    var provider = getProvider();
+    if (provider === "groq" && getGroqKey()) {
+      return callGroq(systemPrompt, userMessage, opts);
+    }
+    return callGemini(systemPrompt, userMessage, opts);
   }
 
   // ============================================================
@@ -299,8 +359,8 @@ var GeminiAI = (function() {
       }
 
       // Step 1: Ask Gemini to generate a DAX query
-      console.log("[GeminiAI] Step 1: Asking Gemini to generate DAX...");
-      return callGemini(buildDaxPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
+      console.log("[GeminiAI] Step 1: Asking AI to generate DAX...");
+      return callAI(buildDaxPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
         .then(function(daxResponse) {
           var dax = daxResponse.trim().replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
 
@@ -323,7 +383,7 @@ var GeminiAI = (function() {
                 "DAX QUERY EXECUTED:\n" + dax + "\n\n" +
                 "LIVE DATA RESULTS:\n" + resultText;
 
-              return callGemini(buildAnswerPrompt(), interpretPrompt, { temperature: 0.7, maxTokens: 1200 });
+              return callAI(buildAnswerPrompt(), interpretPrompt, { temperature: 0.7, maxTokens: 1200 });
             })
             .then(function(answer) {
               console.log("[GeminiAI] Pipeline complete — live data answer ready");
@@ -346,7 +406,7 @@ var GeminiAI = (function() {
 
   // Fallback: Answer using model knowledge only (no live data)
   function queryWithModelKnowledge(userMessage, parsed) {
-    return callGemini(buildFallbackPrompt(), userMessage)
+    return callAI(buildFallbackPrompt(), userMessage)
       .then(function(text) {
         return buildStructuredResponse(text, parsed, null, "gemini");
       });
@@ -402,19 +462,48 @@ var GeminiAI = (function() {
   }
 
   // ============================================================
-  // API Key Management
+  // API Key & Provider Management
   // ============================================================
 
-  function getApiKey() {
-    return localStorage.getItem(STORAGE_KEY) || "";
+  function getProvider() {
+    return localStorage.getItem(PROVIDER_KEY) || "gemini";
+  }
+  function setProvider(p) {
+    localStorage.setItem(PROVIDER_KEY, p);
   }
 
+  function getGeminiKey() {
+    return localStorage.getItem(GEMINI_STORAGE_KEY) || "";
+  }
+  function setGeminiKey(key) {
+    if (key) localStorage.setItem(GEMINI_STORAGE_KEY, key.trim());
+    else localStorage.removeItem(GEMINI_STORAGE_KEY);
+  }
+
+  function getGroqKey() {
+    return localStorage.getItem(GROQ_STORAGE_KEY) || "";
+  }
+  function setGroqKey(key) {
+    if (key) localStorage.setItem(GROQ_STORAGE_KEY, key.trim());
+    else localStorage.removeItem(GROQ_STORAGE_KEY);
+  }
+
+  function getGroqModel() {
+    return localStorage.getItem(GROQ_MODEL_KEY) || GROQ_MODELS[0].id;
+  }
+  function setGroqModel(m) {
+    localStorage.setItem(GROQ_MODEL_KEY, m);
+  }
+
+  // Legacy compatibility
+  function getApiKey() {
+    var p = getProvider();
+    return p === "groq" ? getGroqKey() : getGeminiKey();
+  }
   function setApiKey(key) {
-    if (key) {
-      localStorage.setItem(STORAGE_KEY, key.trim());
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    var p = getProvider();
+    if (p === "groq") setGroqKey(key);
+    else setGeminiKey(key);
   }
 
   function isAvailable() {
@@ -429,9 +518,15 @@ var GeminiAI = (function() {
     var existing = document.getElementById("geminiSettingsModal");
     if (existing) existing.remove();
 
-    var currentKey = getApiKey();
-    var masked = currentKey ? currentKey.slice(0, 6) + "..." + currentKey.slice(-4) : "";
+    var gemKey = getGeminiKey();
+    var groqKey = getGroqKey();
+    var groqModel = getGroqModel();
+    var curProvider = getProvider();
     var hasToken = (typeof pbiAccessToken !== "undefined") && !!pbiAccessToken;
+
+    var groqModelOpts = GROQ_MODELS.map(function(m) {
+      return '<option value="' + m.id + '"' + (groqModel === m.id ? ' selected' : '') + '>' + m.label + '</option>';
+    }).join("");
 
     var overlay = document.createElement("div");
     overlay.id = "geminiSettingsModal";
@@ -440,24 +535,51 @@ var GeminiAI = (function() {
       '<div class="gemini-modal">' +
         '<div class="gemini-modal-header">' +
           '<div class="gemini-modal-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 2-2 3-2 5h-4c0-2-2-3-2-5a4 4 0 0 1 4-4z"/><line x1="10" y1="17" x2="14" y2="17"/><line x1="10" y1="20" x2="14" y2="20"/></svg></div>' +
-          '<h3>Gemini AI Settings</h3>' +
-          '<p class="text-muted">Connect Gemini for live AI answers powered by your semantic model data</p>' +
+          '<h3>AI Settings</h3>' +
+          '<p class="text-muted">Configure your LLM provider and API keys</p>' +
         '</div>' +
         '<div class="gemini-modal-body">' +
-          '<label class="gemini-label">Gemini API Key</label>' +
+
+          // Provider selector
+          '<label class="gemini-label">Active Provider</label>' +
+          '<select id="aiProviderSelect" class="gemini-key-input" style="padding:8px 12px;cursor:pointer">' +
+            '<option value="gemini"' + (curProvider === "gemini" ? " selected" : "") + '>Gemini (Google)</option>' +
+            '<option value="groq"'   + (curProvider === "groq"   ? " selected" : "") + '>Groq</option>' +
+          '</select>' +
+
+          '<div class="gemini-divider"></div>' +
+
+          // Gemini section
+          '<label class="gemini-label"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#58a6ff;margin-right:6px"></span>Gemini API Key</label>' +
           '<div class="gemini-key-wrap">' +
-            '<input type="password" id="geminiKeyInput" class="gemini-key-input" placeholder="AIza..." value="' + currentKey + '">' +
+            '<input type="password" id="geminiKeyInput" class="gemini-key-input" placeholder="AIza..." value="' + gemKey + '">' +
             '<button type="button" class="btn btn-ghost gemini-toggle-vis" onclick="this.previousElementSibling.type = this.previousElementSibling.type === \'password\' ? \'text\' : \'password\'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
           '</div>' +
-          (currentKey ? '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Connected (' + masked + ')</p>' : '<p class="gemini-key-status">No key configured — using offline AI engine</p>') +
-          '<p class="gemini-help">Get a free API key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></p>' +
+          (gemKey ? '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Key saved</p>' : '<p class="gemini-key-status">No key configured</p>') +
+          '<p class="gemini-help">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></p>' +
+
           '<div class="gemini-divider"></div>' +
+
+          // Groq section
+          '<label class="gemini-label"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0883e;margin-right:6px"></span>Groq API Key</label>' +
+          '<div class="gemini-key-wrap">' +
+            '<input type="password" id="groqKeyInput" class="gemini-key-input" placeholder="gsk_..." value="' + groqKey + '">' +
+            '<button type="button" class="btn btn-ghost gemini-toggle-vis" onclick="this.previousElementSibling.type = this.previousElementSibling.type === \'password\' ? \'text\' : \'password\'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
+          '</div>' +
+          (groqKey ? '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Key saved</p>' : '<p class="gemini-key-status">No key configured</p>') +
+          '<label class="gemini-label" style="margin-top:8px">Groq Model</label>' +
+          '<select id="groqModelSelect" class="gemini-key-input" style="padding:8px 12px;cursor:pointer">' + groqModelOpts + '</select>' +
+          '<p class="gemini-help">Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq Console</a></p>' +
+
+          '<div class="gemini-divider"></div>' +
+
+          // Live data status
           '<label class="gemini-label">Live Data Access</label>' +
-          (hasToken ? '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Power BI connected — AI will query live data via DAX</p>' : '<p class="gemini-key-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg> Not signed in — AI will use model knowledge only. Sign in on the report page to enable live data queries.</p>') +
+          (hasToken ? '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Power BI connected — AI will query live data via DAX</p>' : '<p class="gemini-key-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg> Not signed in — AI will use model knowledge only</p>') +
         '</div>' +
         '<div class="gemini-modal-footer">' +
           '<button class="btn btn-ghost" onclick="document.getElementById(\'geminiSettingsModal\').remove()">Cancel</button>' +
-          '<button class="btn btn-primary" id="geminiSaveBtn">Save Key</button>' +
+          '<button class="btn btn-primary" id="geminiSaveBtn">Save</button>' +
         '</div>' +
       '</div>';
 
@@ -468,22 +590,43 @@ var GeminiAI = (function() {
     });
 
     document.getElementById("geminiSaveBtn").addEventListener("click", function() {
-      var key = document.getElementById("geminiKeyInput").value.trim();
-      setApiKey(key);
+      var newGemKey = document.getElementById("geminiKeyInput").value.trim();
+      var newGroqKey = document.getElementById("groqKeyInput").value.trim();
+      var newProvider = document.getElementById("aiProviderSelect").value;
+      var newGroqModel = document.getElementById("groqModelSelect").value;
+
+      setGeminiKey(newGemKey);
+      setGroqKey(newGroqKey);
+      setProvider(newProvider);
+      setGroqModel(newGroqModel);
+
       overlay.remove();
       updateGeminiIndicators();
     });
   }
 
-  // Update UI to show Gemini connection status
+  // Update UI to show AI connection status
   function updateGeminiIndicators() {
     var hasToken = (typeof pbiAccessToken !== "undefined") && !!pbiAccessToken;
+    var provider = getProvider();
+    var hasKey = isAvailable();
     var badges = document.querySelectorAll(".gemini-status-badge");
+
     badges.forEach(function(badge) {
-      if (isAvailable() && hasToken) {
+      if (hasKey && provider === "groq") {
+        var mLabel = GROQ_MODELS.find(function(m) { return m.id === getGroqModel(); });
+        var label = mLabel ? mLabel.label : "Groq";
+        if (hasToken) {
+          badge.className = "gemini-status-badge connected groq";
+          badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Groq Live';
+        } else {
+          badge.className = "gemini-status-badge connected groq";
+          badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Groq';
+        }
+      } else if (hasKey && hasToken) {
         badge.className = "gemini-status-badge connected";
         badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Gemini Live';
-      } else if (isAvailable()) {
+      } else if (hasKey) {
         badge.className = "gemini-status-badge connected";
         badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Gemini';
       } else {
@@ -499,6 +642,8 @@ var GeminiAI = (function() {
     isAvailable: isAvailable,
     getApiKey: getApiKey,
     setApiKey: setApiKey,
+    getProvider: getProvider,
+    setProvider: setProvider,
     showSettings: showSettings,
     updateGeminiIndicators: updateGeminiIndicators
   };

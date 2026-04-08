@@ -917,6 +917,15 @@ a:hover{color:var(--accent-light)}
   background:rgba(63,185,80,.15);
   border-color:var(--accent-green);
 }
+.gemini-status-badge.groq{
+  background:rgba(240,136,62,.08);
+  border:1px solid rgba(240,136,62,.25);
+  color:#f0883e;
+}
+.gemini-status-badge.groq:hover{
+  background:rgba(240,136,62,.15);
+  border-color:#f0883e;
+}
 
 /* Settings button */
 .gemini-settings-btn{
