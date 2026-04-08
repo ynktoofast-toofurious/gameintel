@@ -1,23 +1,248 @@
 // ============================================================
-// Power BI Embed — iframe with URL filter parameters
-// Authenticated report URL when filters applied (supports filtering)
-// Publish to Web fallback when no filters (public, no auth needed)
+// Power BI Embed — MSAL Auth + Power BI JS SDK
+// Authenticates via Azure AD, embeds with powerbi-client SDK,
+// applies filters programmatically, RLS works automatically.
+// Falls back to Publish to Web if auth isn't configured.
 // ============================================================
+
+var pbiReport = null; // global reference to the embedded report
 
 document.addEventListener("DOMContentLoaded", function () {
   var user = requireAuth();
   if (!user) return;
 
-  // Display user info
   var userNameEl = document.getElementById("userName");
   if (userNameEl) userNameEl.textContent = user.name;
 
-  // Show active filters
   displayActiveFilters();
 
-  // Embed the report
-  embedReport();
+  // Check if Azure AD is configured
+  if (CONFIG.auth.clientId && CONFIG.auth.clientId !== "YOUR_CLIENT_ID") {
+    authenticateAndEmbed();
+  } else {
+    // Fallback: Publish to Web (no auth, no filters, no RLS)
+    embedPublicReport();
+  }
 });
+
+// ============================================================
+// MSAL Authentication
+// ============================================================
+
+function getMsalInstance() {
+  var msalConfig = {
+    auth: {
+      clientId: CONFIG.auth.clientId,
+      authority: CONFIG.auth.authority,
+      redirectUri: CONFIG.auth.redirectUri
+    },
+    cache: {
+      cacheLocation: "sessionStorage",
+      storeAuthStateInCookie: false
+    }
+  };
+  return new msal.PublicClientApplication(msalConfig);
+}
+
+function authenticateAndEmbed() {
+  var msalInstance = getMsalInstance();
+  var loginRequest = {
+    scopes: CONFIG.auth.scopes,
+    loginHint: CONFIG.tenant.loginHint || undefined
+  };
+
+  // Try silent token acquisition first (user already signed in)
+  msalInstance.handleRedirectPromise().then(function (response) {
+    if (response) {
+      embedWithToken(response.accessToken);
+      return;
+    }
+
+    var accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0) {
+      var silentRequest = {
+        scopes: CONFIG.auth.scopes,
+        account: accounts[0]
+      };
+      return msalInstance.acquireTokenSilent(silentRequest).then(function (tokenResponse) {
+        embedWithToken(tokenResponse.accessToken);
+      }).catch(function () {
+        // Silent failed, try popup
+        return msalInstance.acquireTokenPopup(loginRequest).then(function (tokenResponse) {
+          embedWithToken(tokenResponse.accessToken);
+        });
+      });
+    } else {
+      // No accounts — trigger popup login
+      return msalInstance.acquireTokenPopup(loginRequest).then(function (tokenResponse) {
+        embedWithToken(tokenResponse.accessToken);
+      });
+    }
+  }).catch(function (error) {
+    console.error("MSAL auth failed:", error);
+    showEmbedError("Azure AD sign-in failed. Falling back to public embed.");
+    // Fallback to public embed after a brief delay
+    setTimeout(function () { embedPublicReport(); }, 1500);
+  });
+}
+
+// ============================================================
+// Power BI JS SDK Embed (Authenticated)
+// ============================================================
+
+function embedWithToken(accessToken) {
+  var models = window["powerbi-client"].models;
+  var embedContainer = document.getElementById("reportContainer");
+  var loadingEl = document.getElementById("reportLoading");
+
+  var embedUrl = "https://app.powerbi.com/reportEmbed?reportId=" +
+    CONFIG.powerbi.reportId + "&groupId=" + CONFIG.powerbi.groupId;
+
+  var config = {
+    type: "report",
+    tokenType: models.TokenType.Aad,
+    accessToken: accessToken,
+    embedUrl: embedUrl,
+    id: CONFIG.powerbi.reportId,
+    permissions: models.Permissions.Read,
+    settings: {
+      panes: {
+        filters: { visible: false },
+        pageNavigation: { visible: true }
+      },
+      bars: {
+        statusBar: { visible: true }
+      },
+      background: models.BackgroundType.Transparent
+    }
+  };
+
+  // Embed the report
+  pbiReport = powerbi.embed(embedContainer, config);
+
+  pbiReport.off("loaded");
+  pbiReport.on("loaded", function () {
+    if (loadingEl) loadingEl.style.display = "none";
+    // Apply saved filters after report loads
+    applySavedFilters();
+  });
+
+  pbiReport.off("error");
+  pbiReport.on("error", function (event) {
+    console.error("Power BI embed error:", event.detail);
+    showEmbedError("Report failed to load: " + (event.detail.message || "Unknown error"));
+  });
+
+  pbiReport.off("rendered");
+  pbiReport.on("rendered", function () {
+    console.log("Report rendered successfully");
+  });
+}
+
+// ============================================================
+// Programmatic Filter Application (SDK)
+// ============================================================
+
+function applySavedFilters() {
+  if (!pbiReport) return;
+
+  var saved = sessionStorage.getItem("selectedFilters");
+  if (!saved) return;
+
+  var filters = JSON.parse(saved);
+  var pbiFilters = buildPbiFilters(filters);
+
+  if (pbiFilters.length > 0) {
+    pbiReport.setFilters(pbiFilters).catch(function (err) {
+      console.error("Failed to apply filters:", err);
+    });
+  }
+}
+
+function buildPbiFilters(filters) {
+  var models = window["powerbi-client"].models;
+  var result = [];
+
+  // Date range filter
+  if (filters.dateStart && filters.dateEnd) {
+    result.push({
+      $schema: "http://powerbi.com/product/schema#advanced",
+      target: {
+        table: CONFIG.filters.dateRange.table,
+        column: CONFIG.filters.dateRange.column
+      },
+      filterType: models.FilterType.Advanced,
+      logicalOperator: "And",
+      conditions: [
+        { operator: "GreaterThanOrEqual", value: filters.dateStart + "T00:00:00Z" },
+        { operator: "LessThanOrEqual", value: filters.dateEnd + "T23:59:59Z" }
+      ]
+    });
+  }
+
+  // Team filter
+  if (filters.team && filters.team !== "All") {
+    result.push({
+      $schema: "http://powerbi.com/product/schema#basic",
+      target: {
+        table: CONFIG.filters.team.table,
+        column: CONFIG.filters.team.column
+      },
+      filterType: models.FilterType.Basic,
+      operator: "In",
+      values: [filters.team]
+    });
+  }
+
+  // Division filter (multiple teams)
+  if (filters.division && filters.division !== "All" && (!filters.team || filters.team === "All")) {
+    var teams = CONFIG.teamsByDivision[filters.division];
+    if (teams && teams.length > 0) {
+      result.push({
+        $schema: "http://powerbi.com/product/schema#basic",
+        target: {
+          table: CONFIG.filters.team.table,
+          column: CONFIG.filters.team.column
+        },
+        filterType: models.FilterType.Basic,
+        operator: "In",
+        values: teams
+      });
+    }
+  }
+
+  // Player filter
+  if (filters.player) {
+    result.push({
+      $schema: "http://powerbi.com/product/schema#basic",
+      target: {
+        table: CONFIG.filters.player.table,
+        column: CONFIG.filters.player.column
+      },
+      filterType: models.FilterType.Basic,
+      operator: "Contains",
+      values: [filters.player]
+    });
+  }
+
+  return result;
+}
+
+// Apply new filters to an already-embedded report
+function reEmbedReport() {
+  displayActiveFilters();
+  if (pbiReport) {
+    // SDK: just update filters, no need to re-embed
+    applySavedFilters();
+  } else {
+    // Fallback: re-embed iframe
+    var embedContainer = document.getElementById("reportContainer");
+    var loadingEl = document.getElementById("reportLoading");
+    embedContainer.innerHTML = "";
+    if (loadingEl) loadingEl.style.display = "flex";
+    embedPublicReport();
+  }
+}
 
 function displayActiveFilters() {
   var saved = sessionStorage.getItem("selectedFilters");
@@ -48,59 +273,16 @@ function displayActiveFilters() {
   }).join("");
 }
 
-function buildFilterString(filters) {
-  // Power BI URL filter format: ?filter=Table/Column eq 'value'
-  // Multiple filters joined with " and "
-  // Date filters use: Table/Column ge datetime'YYYY-MM-DDT00:00:00'
-  // Docs: https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-url-filters
-  var parts = [];
+// ============================================================
+// Fallback: Publish to Web (no auth, no filters, no RLS)
+// ============================================================
 
-  if (filters.dateStart && filters.dateEnd) {
-    var tbl = CONFIG.filters.dateRange.table;
-    var col = CONFIG.filters.dateRange.column;
-    parts.push(tbl + "/" + col + " ge datetime'" + filters.dateStart + "T00:00:00'");
-    parts.push(tbl + "/" + col + " le datetime'" + filters.dateEnd + "T23:59:59'");
-  }
-
-  if (filters.team && filters.team !== "All") {
-    parts.push(CONFIG.filters.team.table + "/" + CONFIG.filters.team.column + " eq '" + filters.team + "'");
-  }
-
-  if (filters.division && filters.division !== "All") {
-    // No Division column in model — filter by all teams in that division
-    var teams = CONFIG.teamsByDivision[filters.division];
-    if (teams && teams.length > 0 && (!filters.team || filters.team === "All")) {
-      var inList = teams.map(function(t) { return "'" + t + "'"; }).join(",");
-      parts.push(CONFIG.filters.team.table + "/" + CONFIG.filters.team.column + " in (" + inList + ")");
-    }
-  }
-
-  if (filters.player) {
-    parts.push(CONFIG.filters.player.table + "/" + CONFIG.filters.player.column + " eq '" + filters.player + "'");
-  }
-
-  return parts.length > 0 ? "&filter=" + encodeURIComponent(parts.join(" and ")) : "";
-}
-
-function embedReport() {
+function embedPublicReport() {
   var embedContainer = document.getElementById("reportContainer");
   var loadingEl = document.getElementById("reportLoading");
 
-  // Check if filters are set
-  var saved = sessionStorage.getItem("selectedFilters");
-  var filterStr = "";
-  if (saved) {
-    var filters = JSON.parse(saved);
-    filterStr = buildFilterString(filters);
-  }
-
-  // Always use the Publish to Web embed URL (the only URL that works in iframes)
-  // Note: Publish to Web does NOT support URL filter parameters — they are ignored
-  var fullUrl = CONFIG.powerbi.publicEmbedUrl;
-
-  // Create iframe
   var iframe = document.createElement("iframe");
-  iframe.src = fullUrl;
+  iframe.src = CONFIG.powerbi.publicEmbedUrl;
   iframe.frameBorder = "0";
   iframe.allowFullscreen = true;
   iframe.style.width = "100%";
@@ -115,27 +297,12 @@ function embedReport() {
     if (loadingEl) loadingEl.style.display = "none";
   };
 
-  iframe.onerror = function () {
-    showEmbedError("Failed to load the Power BI report. Make sure you're signed into Power BI.");
-  };
-
+  embedContainer.innerHTML = "";
   embedContainer.appendChild(iframe);
 
-  // Fallback: hide loading after 5 seconds even if onload doesn't fire
   setTimeout(function () {
     if (loadingEl) loadingEl.style.display = "none";
   }, 5000);
-}
-
-function reEmbedReport() {
-  var embedContainer = document.getElementById("reportContainer");
-  var loadingEl = document.getElementById("reportLoading");
-  embedContainer.innerHTML = "";
-  if (loadingEl) {
-    loadingEl.style.display = "flex";
-  }
-  displayActiveFilters();
-  embedReport();
 }
 
 function showEmbedError(message) {
