@@ -28,8 +28,8 @@ const CONFIG = {
     pageId: "7eb1f7b21fcf5ca5bdfe",
     // Standard report URL — supports URL filtering (user must be signed into PBI)
     reportUrl: "https://app.powerbi.com/groups/2648337b-b32f-42ab-a1b9-576f27be4c5e/reports/c8fa7b41-d7db-45f4-bd62-b18e49ba90cd/7eb1f7b21fcf5ca5bdfe",
-    // Public embed URL — fallback, no filters supported
-    publicEmbedUrl: "https://app.powerbi.com/view?r=eyJrIjoiYmQxMjU1ZDEtNDkyNC00Y2E5LWIyMDItZDQ4Y2VlZTI3MWI5IiwidCI6IjE1N2Q1NzI5LTA2NWMtNDU4Ni04MDk4LTRiZDJjN2NjMzJhYiJ9"
+    // Authenticated embed URL — fallback, requires user to be signed into Power BI
+    publicEmbedUrl: "https://app.powerbi.com/reportEmbed?reportId=c8fa7b41-d7db-45f4-bd62-b18e49ba90cd&autoAuth=true&ctid=157d5729-065c-4586-8098-4bd2c7cc32ab"
   },
 
   // Report filter table/column mappings (must match PBIP semantic model exactly)
