@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   displayActiveFilters();
 
+  // Restore filters from localStorage if sessionStorage lost them (MSAL redirect)
+  if (!sessionStorage.getItem("selectedFilters") && localStorage.getItem("selectedFilters")) {
+    sessionStorage.setItem("selectedFilters", localStorage.getItem("selectedFilters"));
+  }
+
   // Check if Azure AD is configured and MSAL is available
   if (CONFIG.auth.clientId && CONFIG.auth.clientId !== "YOUR_CLIENT_ID" && typeof msal !== "undefined") {
     authenticateAndEmbed();
@@ -168,8 +173,7 @@ function embedWithToken(accessToken) {
   pbiReport.off("loaded");
   pbiReport.on("loaded", function () {
     if (loadingEl) loadingEl.style.display = "none";
-    // Apply saved filters after report loads
-    applySavedFilters();
+    console.log("Report loaded");
   });
 
   pbiReport.off("error");
@@ -180,7 +184,8 @@ function embedWithToken(accessToken) {
 
   pbiReport.off("rendered");
   pbiReport.on("rendered", function () {
-    console.log("Report rendered successfully");
+    console.log("Report rendered — applying filters");
+    applySavedFilters();
   });
 }
 
@@ -191,15 +196,35 @@ function embedWithToken(accessToken) {
 function applySavedFilters() {
   if (!pbiReport) return;
 
-  var saved = sessionStorage.getItem("selectedFilters");
-  if (!saved) return;
+  // Try sessionStorage first, fall back to localStorage (survives MSAL redirect)
+  var saved = sessionStorage.getItem("selectedFilters") || localStorage.getItem("selectedFilters");
+  if (!saved) {
+    console.log("No saved filters found");
+    return;
+  }
 
   var filters = JSON.parse(saved);
   var pbiFilters = buildPbiFilters(filters);
+  console.log("Applying filters:", JSON.stringify(pbiFilters));
 
   if (pbiFilters.length > 0) {
-    pbiReport.setFilters(pbiFilters).catch(function (err) {
-      console.error("Failed to apply filters:", err);
+    // Use page-level filters (matches "Filters on this page" in PBI filter pane)
+    pbiReport.getPages().then(function (pages) {
+      var activePage = pages.filter(function (p) { return p.isActive; })[0];
+      if (activePage) {
+        console.log("Setting filters on page: " + activePage.displayName);
+        return activePage.setFilters(pbiFilters);
+      } else {
+        console.log("No active page found, setting report-level filters");
+        return pbiReport.setFilters(pbiFilters);
+      }
+    }).then(function () {
+      console.log("Filters applied successfully");
+    }).catch(function (err) {
+      console.error("Page filter failed, trying report-level:", err);
+      pbiReport.setFilters(pbiFilters).catch(function (err2) {
+        console.error("Report-level filter also failed:", err2);
+      });
     });
   }
 }
@@ -253,17 +278,19 @@ function buildPbiFilters(filters) {
     });
   }
 
-  // Player filter
+  // Player filter (uses AdvancedFilter for "Contains" operator)
   if (filters.player) {
     result.push({
-      $schema: "http://powerbi.com/product/schema#basic",
+      $schema: "http://powerbi.com/product/schema#advanced",
       target: {
         table: CONFIG.filters.player.table,
         column: CONFIG.filters.player.column
       },
-      filterType: models.FilterType.Basic,
-      operator: "Contains",
-      values: [filters.player]
+      filterType: models.FilterType.Advanced,
+      logicalOperator: "And",
+      conditions: [
+        { operator: "Contains", value: filters.player }
+      ]
     });
   }
 

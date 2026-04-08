@@ -152,6 +152,7 @@ function getSelectedFilters() {
 function viewReport() {
   const filters = getSelectedFilters();
   sessionStorage.setItem("selectedFilters", JSON.stringify(filters));
+  localStorage.setItem("selectedFilters", JSON.stringify(filters));
   window.location.href = "report.html";
 }
 
