@@ -19,12 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Check if Azure AD is configured and MSAL is available
   if (CONFIG.auth.clientId && CONFIG.auth.clientId !== "YOUR_CLIENT_ID" && typeof msal !== "undefined") {
-    // Safety net: if auth takes more than 8 seconds, fall back to public embed
-    var authTimeout = setTimeout(function () {
-      console.warn("MSAL auth timed out — falling back to public embed");
-      embedPublicReport();
-    }, 8000);
-    authenticateAndEmbed(authTimeout);
+    authenticateAndEmbed();
   } else {
     embedPublicReport();
   }
@@ -49,12 +44,12 @@ function getMsalInstance() {
   return new msal.PublicClientApplication(msalConfig);
 }
 
-function authenticateAndEmbed(authTimeout) {
+function authenticateAndEmbed() {
+  var msalInstance;
   try {
-    var msalInstance = getMsalInstance();
+    msalInstance = getMsalInstance();
   } catch (e) {
     console.error("MSAL init failed:", e);
-    clearTimeout(authTimeout);
     embedPublicReport();
     return;
   }
@@ -64,42 +59,76 @@ function authenticateAndEmbed(authTimeout) {
     loginHint: CONFIG.tenant.loginHint || undefined
   };
 
-  function onToken(accessToken) {
-    clearTimeout(authTimeout);
-    embedWithToken(accessToken);
-  }
-
-  function onFail(error) {
-    console.error("MSAL auth failed:", error);
-    clearTimeout(authTimeout);
-    embedPublicReport();
-  }
-
-  // Handle redirect response (returning from Microsoft login)
+  // First: check if we're returning from a redirect
   msalInstance.handleRedirectPromise().then(function (response) {
     if (response) {
-      onToken(response.accessToken);
+      // Returning from Microsoft login — we have a token
+      console.log("MSAL redirect success — embedding with SDK");
+      embedWithToken(response.accessToken);
       return;
     }
 
+    // Check if user has an existing session
     var accounts = msalInstance.getAllAccounts();
     if (accounts.length > 0) {
-      // Already signed in — get token silently
-      var silentRequest = {
-        scopes: CONFIG.auth.scopes,
-        account: accounts[0]
-      };
-      return msalInstance.acquireTokenSilent(silentRequest).then(function (tokenResponse) {
-        onToken(tokenResponse.accessToken);
+      // Already signed in — try silent token
+      var silentRequest = { scopes: CONFIG.auth.scopes, account: accounts[0] };
+      msalInstance.acquireTokenSilent(silentRequest).then(function (tokenResponse) {
+        console.log("MSAL silent token acquired — embedding with SDK");
+        embedWithToken(tokenResponse.accessToken);
       }).catch(function () {
-        // Silent failed — redirect to Microsoft login
-        msalInstance.acquireTokenRedirect(loginRequest);
+        // Silent failed — show sign-in prompt or fallback
+        showSignInPrompt(msalInstance, loginRequest);
       });
     } else {
-      // No accounts — redirect to Microsoft login
-      msalInstance.acquireTokenRedirect(loginRequest);
+      // No session — check if we have filters that need auth
+      var saved = sessionStorage.getItem("selectedFilters");
+      var hasFilters = false;
+      if (saved) {
+        var f = JSON.parse(saved);
+        hasFilters = (f.team && f.team !== "All") || (f.division && f.division !== "All") || f.player;
+      }
+
+      if (hasFilters) {
+        // Filters selected — need auth for them to work, redirect to Microsoft login
+        console.log("Filters detected, redirecting to Microsoft login...");
+        msalInstance.acquireTokenRedirect(loginRequest);
+      } else {
+        // No filters — just show the public embed
+        embedPublicReport();
+      }
     }
-  }).catch(onFail);
+  }).catch(function (error) {
+    console.error("MSAL error:", error);
+    embedPublicReport();
+  });
+}
+
+function showSignInPrompt(msalInstance, loginRequest) {
+  var loadingEl = document.getElementById("reportLoading");
+  if (loadingEl) {
+    loadingEl.innerHTML =
+      '<div style="text-align:center;padding:2rem">' +
+      '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" style="margin-bottom:1rem">' +
+      '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+      '<p style="color:#e6edf3;font-size:1rem;margin-bottom:.5rem"><strong>Sign in to apply filters</strong></p>' +
+      '<p style="color:#8b949e;font-size:.875rem;margin-bottom:1.5rem">Sign in with your Microsoft account to filter the report by team, division, or player.</p>' +
+      '<button class="btn btn-primary" id="msalSignInBtn" style="margin-right:.5rem">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"/></svg>' +
+      'Sign in with Microsoft</button>' +
+      '<button class="btn btn-secondary" id="skipSignInBtn">View without filters</button>' +
+      '</div>';
+
+    document.getElementById("msalSignInBtn").addEventListener("click", function () {
+      loadingEl.innerHTML = '<div class="loading-spinner"></div><p>Redirecting to Microsoft login...</p>';
+      msalInstance.acquireTokenRedirect(loginRequest);
+    });
+
+    document.getElementById("skipSignInBtn").addEventListener("click", function () {
+      loadingEl.innerHTML = '<div class="loading-spinner"></div><p>Loading Power BI Report...</p>';
+      embedPublicReport();
+    });
+  }
 }
 
 // ============================================================
