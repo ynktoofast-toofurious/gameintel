@@ -1,0 +1,20 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "cc33dd44ee55ff6677aa",
+  "position": { "x": 665, "y": 410, "z": 7200, "height": 130, "width": 220, "tabOrder": 7200 },
+  "visual": {
+    "visualType": "card",
+    "query": { "queryState": { "Values": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Score Margin" } }, "queryRef": "Match by Team.Score Margin", "nativeQueryRef": "Score Margin" }] } } },
+    "objects": {
+      "labels": [{ "properties": { "fontSize": { "expr": { "Literal": { "Value": "48D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } } } }],
+      "categoryLabels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Margin'" } } }, "alignment": { "expr": { "Literal": { "Value": "'center'" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } }, "radius": { "expr": { "Literal": { "Value": "12D" } } }, "width": { "expr": { "Literal": { "Value": "2D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

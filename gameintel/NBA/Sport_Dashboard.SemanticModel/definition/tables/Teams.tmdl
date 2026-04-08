@@ -1,0 +1,95 @@
+table Teams
+	lineageTag: 552618d2-84ca-4e78-992d-e83def7a8370
+
+	column team_key
+		dataType: int64
+		formatString: 0
+		lineageTag: dc412b62-fe66-4e3f-9b4f-a5b0f8dbd784
+		summarizeBy: sum
+		sourceColumn: team_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column team_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3680251b-d079-42f5-8dca-89ae80889102
+		summarizeBy: none
+		sourceColumn: team_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column team_name
+		dataType: string
+		lineageTag: a8fd2567-ae47-49c0-88cd-1d4237366a26
+		summarizeBy: none
+		sourceColumn: team_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 452bd2ea-de21-4667-bda3-a8859f20ad4e
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 963c064d-4468-4717-8f65-e5a35f5d1f08
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8d2cd835-75ea-401d-90cd-b2723b237473
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 38111152-1340-4c13-a251-06cab4a1ef42
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: fb6f568c-1b5d-4fbe-8ca8-945a4fe537a7
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column team_code
+		dataType: string
+		lineageTag: 7c05377a-dc22-4c3f-b0ea-562e8c418c89
+		summarizeBy: none
+		sourceColumn: team_code
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Teams = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Databases("ROME"),
+				    REMUS = Source{[Name="REMUS"]}[Data],
+				    dbo_nba_players = REMUS{[Schema="dbo",Item="nba_teams"]}[Data]
+				in
+				    dbo_nba_players
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

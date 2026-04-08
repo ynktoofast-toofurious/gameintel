@@ -1,0 +1,197 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "match_schedule.game_date": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "game_date"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Date": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.game_time": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "game_time"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Time": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.game_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "game_status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.home_logo_url": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "home_logo_url"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "match_schedule.home_team": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "home_team"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Home Team": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.home_score": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "home_score"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Score": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.away_logo_url": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "away_logo_url"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "match_schedule.away_team": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "away_team"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Away Team": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "match_schedule.away_score": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "match_schedule",
+			          "ConceptualProperty": "away_score"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Score": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "teams.category": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Teams",
+			          "ConceptualProperty": "category"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Division": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

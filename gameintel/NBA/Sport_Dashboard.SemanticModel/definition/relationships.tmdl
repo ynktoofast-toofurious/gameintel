@@ -1,0 +1,19 @@
+relationship 2a76ea91-e426-035c-eae3-ead5869e72c7
+	fromColumn: 'Players Profile'.nba_player_id
+	toColumn: nba_players.nba_player_id
+
+relationship 50299b03-928f-633a-a48c-2416e2aa6ce3
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Match by Team'.game_key
+	toColumn: match_schedule.game_key
+
+relationship b52c7ab0-bb99-ec60-b4d8-68f06d192fd8
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Match by Team'.nba_team_id
+	toColumn: Teams.team_id
+
+relationship 4c3a3764-dcf8-4a88-cb47-4611188c75b7
+	crossFilteringBehavior: bothDirections
+	fromColumn: nba_players.team_code
+	toColumn: Teams.team_code
+

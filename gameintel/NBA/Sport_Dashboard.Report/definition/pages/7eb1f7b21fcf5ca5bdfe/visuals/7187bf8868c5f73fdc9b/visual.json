@@ -1,0 +1,41 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "7187bf8868c5f73fdc9b",
+  "position": { "x": 16, "y": 78, "z": 3000, "height": 48, "width": 1518, "tabOrder": 2000 },
+  "visual": {
+    "visualType": "advancedSlicerVisual",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "match_schedule" } }, "Property": "game_time_bucket" } }, "queryRef": "match_schedule.game_time_bucket", "nativeQueryRef": "game_time_bucket" }] }
+      }
+    },
+    "objects": {
+      "layout": [{ "properties": { "rowCount": { "expr": { "Literal": { "Value": "1L" } } }, "columnCount": { "expr": { "Literal": { "Value": "7L" } } } } }],
+      "general": [{ "properties": {} }],
+      "actionState": [{ "properties": { "IsButtonsAdvanced": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "shapeCustomRectangle": [
+        { "properties": { "tileShape": { "expr": { "Literal": { "Value": "'tabCutTopCornersByPixel'" } } }, "tabCutCornerSnipSizeCustomStyle": { "expr": { "Literal": { "Value": "true" } } }, "tabCutCornerSnipSizeLeftTop": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeRightTop": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeLeftBottom": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeRightBottom": { "expr": { "Literal": { "Value": "8L" } } } }, "selector": { "id": "interaction:press" } },
+        { "properties": { "tileShape": { "expr": { "Literal": { "Value": "'rectangle'" } } }, "tabCutCornerSnipSizeCustomStyle": { "expr": { "Literal": { "Value": "true" } } }, "tabCutCornerSnipSizeLeftTop": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeRightTop": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeLeftBottom": { "expr": { "Literal": { "Value": "8L" } } }, "tabCutCornerSnipSizeRightBottom": { "expr": { "Literal": { "Value": "8L" } } } }, "selector": { "id": "selection:selected" } }
+      ],
+      "fillCustom": [
+        { "properties": { "fillColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } } }, "selector": { "id": "selection:selected" } },
+        { "properties": { "fillColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#21262D'" } } } } } }, "selector": { "id": "interaction:default" } }
+      ],
+      "outline": [
+        { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "id": "selection:selected" } }
+      ],
+      "value": [
+        { "properties": { "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } }, "selector": { "id": "interaction:press" } },
+        { "properties": { "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } }, "selector": { "id": "interaction:default" } }
+      ],
+      "selection": [{ "properties": { "selectAllCheckboxEnabled": { "expr": { "Literal": { "Value": "true" } } } } }],
+      "data": [{ "properties": {} }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

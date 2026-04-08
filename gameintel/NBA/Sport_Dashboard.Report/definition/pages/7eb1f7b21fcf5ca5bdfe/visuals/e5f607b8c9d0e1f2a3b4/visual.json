@@ -1,0 +1,28 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "e5f607b8c9d0e1f2a3b4",
+  "position": { "x": 770, "y": 636, "z": 13000, "height": 304, "width": 380, "tabOrder": 13000 },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "game_date" } }, "queryRef": "Match by Team.game_date", "nativeQueryRef": "game_date" }] },
+        "Y": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Total Games" } }, "queryRef": "Match by Team.Total Games", "nativeQueryRef": "Total Games" }] }
+      }
+    },
+    "objects": {
+      "lineStyles": [{ "properties": { "strokeWidth": { "expr": { "Literal": { "Value": "3D" } } } } }],
+      "dataPoint": [{ "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } } } }],
+      "categoryAxis": [{ "properties": { "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } }, "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "fontSize": { "expr": { "Literal": { "Value": "10D" } } } } }],
+      "valueAxis": [{ "properties": { "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } }, "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "gridlineShow": { "expr": { "Literal": { "Value": "true" } } }, "gridlineColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#21262D'" } } } } } } }],
+      "legend": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Games Over Time'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "8D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

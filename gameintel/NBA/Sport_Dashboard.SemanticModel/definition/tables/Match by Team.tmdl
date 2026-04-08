@@ -1,0 +1,243 @@
+table 'Match by Team'
+	lineageTag: fa339670-d190-488a-b1e6-02157df8a811
+
+	measure 'PP Away' = CALCULATE(MIN('Players Profile'[image_url]),'Match by Team'[Team_Side]="Away")
+		lineageTag: f764b3fc-c6d5-4126-a97d-46999c77fe7c
+
+	measure 'PP Home' = CALCULATE(MIN('Players Profile'[image_url]),'Match by Team'[Team_Side]="Home")
+		lineageTag: c0193999-c351-42a0-8f01-579f341d33b2
+
+	measure 'Total Games' = DISTINCTCOUNT('Match by Team'[game_key])
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6
+
+	measure Wins = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[result] = "W")
+		formatString: #,0
+		lineageTag: b2c3d4e5-f6a7-b8c9-d0e1-f2a3b4c5d6e7
+
+	measure Losses = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[result] = "L")
+		formatString: #,0
+		lineageTag: c3d4e5f6-a7b8-c9d0-e1f2-a3b4c5d6e7f8
+
+	measure 'Win Pct' =
+			VAR _W = [Wins]
+			VAR _L = [Losses]
+			RETURN DIVIDE(_W, _W + _L, 0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: d4e5f6a7-b8c9-d0e1-f2a3-b4c5d6e7f8a9
+
+	measure 'Avg Score' = AVERAGE('Match by Team'[score])
+		formatString: #,0.0
+		lineageTag: e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0
+
+	measure 'Home Wins' = CALCULATE([Wins], 'Match by Team'[Team_Side] = "Home")
+		formatString: #,0
+		lineageTag: f6a7b8c9-d0e1-f2a3-b4c5-d6e7f8a9b0c1
+
+	measure 'Away Wins' = CALCULATE([Wins], 'Match by Team'[Team_Side] = "Away")
+		formatString: #,0
+		lineageTag: a7b8c9d0-e1f2-a3b4-c5d6-e7f8a9b0c1d2
+
+	measure 'Home Win Pct' =
+			VAR _HomeTotal = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[Team_Side] = "Home", 'Match by Team'[result] IN {"W", "L"})
+			VAR _HomeW = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[Team_Side] = "Home", 'Match by Team'[result] = "W")
+			RETURN DIVIDE(_HomeW, _HomeTotal, 0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b8c9d0e1-f2a3-b4c5-d6e7-f8a9b0c1d2e3
+
+	measure 'Away Win Pct' =
+			VAR _AwayTotal = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[Team_Side] = "Away", 'Match by Team'[result] IN {"W", "L"})
+			VAR _AwayW = CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[Team_Side] = "Away", 'Match by Team'[result] = "W")
+			RETURN DIVIDE(_AwayW, _AwayTotal, 0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c9d0e1f2-a3b4-c5d6-e7f8-a9b0c1d2e3f4
+
+	measure 'Avg Home Score' = CALCULATE(AVERAGE('Match by Team'[score]), 'Match by Team'[Team_Side] = "Home")
+		formatString: #,0.0
+		lineageTag: b4c5d6e7-f8a9-b0c1-d2e3-f4a5b6c7d8e9
+
+	measure 'Avg Away Score' = CALCULATE(AVERAGE('Match by Team'[score]), 'Match by Team'[Team_Side] = "Away")
+		formatString: #,0.0
+		lineageTag: c5d6e7f8-a9b0-c1d2-e3f4-a5b6c7d8e9f0
+
+	measure 'Max Score' = MAX('Match by Team'[score])
+		formatString: #,0
+		lineageTag: a3b4c5d6-e7f8-a9b0-c1d2-e3f4a5b6c7d8
+
+	measure 'Total Teams' = DISTINCTCOUNT('Match by Team'[nba_team_id])
+		formatString: #,0
+		lineageTag: d0e1f2a3-b4c5-d6e7-f8a9-b0c1d2e3f4a5
+
+	measure 'Total Players' = DISTINCTCOUNT(nba_players[nba_player_id])
+		formatString: #,0
+		lineageTag: e1f2a3b4-c5d6-e7f8-a9b0-c1d2e3f4a5b6
+
+	measure 'Score Margin' = ABS(MIN(match_schedule[home_score]) - MIN(match_schedule[away_score]))
+		formatString: #,0
+		lineageTag: f2a3b4c5-d6e7-f8a9-b0c1-d2e3f4a5b6c7
+
+	column Team_Side
+		dataType: string
+		lineageTag: 095f8d2e-1d15-41a9-a195-adb14b3928d7
+		summarizeBy: none
+		sourceColumn: Team_Side
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 83676fe2-96c6-45f8-82f1-fa29802581c5
+		summarizeBy: none
+		sourceColumn: game_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 510ffb91-af0d-4d00-af92-e0147276947b
+		summarizeBy: sum
+		sourceColumn: game_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 46dce69d-455d-491a-b77e-76d569cbf98b
+		summarizeBy: none
+		sourceColumn: game_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_time
+		dataType: string
+		lineageTag: 6e21a472-a411-42ed-93da-141b83a60b26
+		summarizeBy: none
+		sourceColumn: game_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team
+		dataType: string
+		lineageTag: 343f5820-3aed-4073-989d-ec57d8ca8d7c
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column nba_team_id
+		dataType: int64
+		formatString: 0
+		lineageTag: eb66e338-6958-438c-9102-476583a11996
+		summarizeBy: none
+		sourceColumn: nba_team_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team_logo_url
+		dataType: string
+		lineageTag: 7572fdd9-e3b5-437e-82fe-3c0a2f2a39f3
+		summarizeBy: none
+		sourceColumn: Team_logo_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column matchup
+		dataType: string
+		lineageTag: f136ab04-6e33-41b0-83fd-9fdbb3b713c8
+		summarizeBy: none
+		sourceColumn: matchup
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_status
+		dataType: string
+		lineageTag: bd246261-531f-4421-82c9-1bb5e069b024
+		summarizeBy: none
+		sourceColumn: game_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column score
+		dataType: int64
+		formatString: 0
+		lineageTag: f6bd823a-14b5-4ded-8bd9-94ce0f1637be
+		summarizeBy: sum
+		sourceColumn: score
+
+		annotation SummarizationSetBy = Automatic
+
+	column final_score
+		dataType: string
+		lineageTag: 2d4ebdaf-2cf8-4fbb-8a4d-b15ce0ca61b7
+		summarizeBy: none
+		sourceColumn: final_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 9d31d126-b95f-4d1f-a8cb-9905913b42de
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ffbdc32b-f625-434c-b9a9-fc54e6d00251
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: af2c52f5-c96b-4e4e-ba2c-9e96dae69a6b
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 662039b9-eb03-465a-9f76-fc2353a5cf27
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_time_bucket
+		dataType: string
+		lineageTag: 6f46cc81-b110-4bcb-979e-d463163e6d34
+		summarizeBy: none
+		sourceColumn: game_time_bucket
+
+		annotation SummarizationSetBy = Automatic
+
+	column result
+		dataType: string
+		lineageTag: 846d750c-bf52-4544-88a7-15c013face4c
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Match by Team' = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("ROME", "REMUS", [Query="SELECT#(lf)      'Home' AS Team_Side#(lf)    , ms.[game_key]#(lf)    , ms.[game_id]#(lf)    , ms.[game_date]#(lf)    , ms.[game_time]#(lf)    , ms.[home_team] AS Team#(lf)    , home_t.[team_id]      AS nba_team_id#(lf)    , home_logo.[logo_url]  AS Team_logo_url#(lf)    , ms.[matchup]#(lf)    , ms.[game_status]#(lf)    , ms.[home_score]       AS score#(lf)    , ms.[final_score]#(lf)    , ms.[is_current]#(lf)    , ms.[valid_from]#(lf)    , ms.[valid_to]#(lf)    , ms.[load_datetime]#(lf)    , CASE#(lf)        WHEN ms.[home_score] IS NULL OR ms.[away_score] IS NULL THEN NULL#(lf)        WHEN UPPER(ms.[game_status]) NOT IN ('FINAL', 'COMPLETED') THEN NULL#(lf)        WHEN ms.[home_score] > ms.[away_score] THEN 'W'#(lf)        WHEN ms.[home_score] < ms.[away_score] THEN 'L'#(lf)        ELSE 'T'#(lf)      END AS result#(lf)    , CASE#(lf)        WHEN UPPER(ms.[game_status]) IN ('LIVE', 'IN PROGRESS', 'HALFTIME') THEN 'Live'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = CAST(GETDATE() AS DATE) THEN 'Today'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, 1, CAST(GETDATE() AS DATE)) THEN 'Tomorrow'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, -1, CAST(GETDATE() AS DATE)) THEN 'Yesterday'#(lf)        WHEN CAST(ms.[game_date] AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE)) THEN 'Next 7 Days'#(lf)        WHEN CAST(ms.[game_date] AS DATE) < CAST(GETDATE() AS DATE) THEN 'Past'#(lf)        WHEN CAST(ms.[game_date] AS DATE) > CAST(GETDATE() AS DATE) THEN 'Future'#(lf)        ELSE 'Unknown'#(lf)      END AS game_time_bucket#(lf)FROM [REMUS].[dbo].[match_schedule] ms#(lf)LEFT JOIN [REMUS].[dbo].[nba_teams] home_t#(lf)    ON home_t.[team_name] = CASE#(lf)                                WHEN ms.[home_team] = 'Los Angeles Clippers' THEN 'LA Clippers'#(lf)                                ELSE ms.[home_team]#(lf)                            END#(lf)   AND home_t.[is_current] = 1#(lf)LEFT JOIN [REMUS].[dbo].[nba_team_logos] home_logo#(lf)    ON home_logo.[team_id] = home_t.[team_id]#(lf)#(lf)UNION ALL#(lf)#(lf)SELECT#(lf)      'Away' AS Team_Side#(lf)    , ms.[game_key]#(lf)    , ms.[game_id]#(lf)    , ms.[game_date]#(lf)    , ms.[game_time]#(lf)    , ms.[away_team]        AS Team#(lf)    , away_t.[team_id]      AS nba_team_id#(lf)    , away_logo.[logo_url]  AS Team_logo_url#(lf)    , ms.[matchup]#(lf)    , ms.[game_status]#(lf)    , ms.[away_score]       AS score#(lf)    , ms.[final_score]#(lf)    , ms.[is_current]#(lf)    , ms.[valid_from]#(lf)    , ms.[valid_to]#(lf)    , ms.[load_datetime]#(lf)    , CASE#(lf)        WHEN ms.[home_score] IS NULL OR ms.[away_score] IS NULL THEN NULL#(lf)        WHEN UPPER(ms.[game_status]) NOT IN ('FINAL', 'COMPLETED') THEN NULL#(lf)        WHEN ms.[away_score] > ms.[home_score] THEN 'W'#(lf)        WHEN ms.[away_score] < ms.[home_score] THEN 'L'#(lf)        ELSE 'T'#(lf)      END AS result#(lf)    , CASE#(lf)        WHEN UPPER(ms.[game_status]) IN ('LIVE', 'IN PROGRESS', 'HALFTIME') THEN 'Live'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = CAST(GETDATE() AS DATE) THEN 'Today'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, 1, CAST(GETDATE() AS DATE)) THEN 'Tomorrow'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, -1, CAST(GETDATE() AS DATE)) THEN 'Yesterday'#(lf)        WHEN CAST(ms.[game_date] AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE)) THEN 'Next 7 Days'#(lf)        WHEN CAST(ms.[game_date] AS DATE) < CAST(GETDATE() AS DATE) THEN 'Past'#(lf)        WHEN CAST(ms.[game_date] AS DATE) > CAST(GETDATE() AS DATE) THEN 'Future'#(lf)        ELSE 'Unknown'#(lf)      END AS game_time_bucket#(lf)FROM [REMUS].[dbo].[match_schedule] ms#(lf)LEFT JOIN [REMUS].[dbo].[nba_teams] away_t#(lf)    ON away_t.[team_name] = CASE#(lf)                                WHEN ms.[away_team] = 'Los Angeles Clippers' THEN 'LA Clippers'#(lf)                                ELSE ms.[away_team]#(lf)                            END#(lf)   AND away_t.[is_current] = 1#(lf)LEFT JOIN [REMUS].[dbo].[nba_team_logos] away_logo#(lf)    ON away_logo.[team_id] = away_t.[team_id]"])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "a1b2c3d4e5f6070809ab",
+  "position": { "x": 400, "y": 700, "z": 9300, "height": 230, "width": 750, "tabOrder": 9300 },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "game_date" } }, "queryRef": "Match by Team.game_date", "nativeQueryRef": "Date", "displayName": "Date" },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Team" } }, "queryRef": "Match by Team.Team", "nativeQueryRef": "Team" },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Team_Side" } }, "queryRef": "Match by Team.Team_Side", "nativeQueryRef": "Side", "displayName": "Side" },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "score" } }, "queryRef": "Sum(Match by Team.score)", "nativeQueryRef": "Score" },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "queryRef": "Match by Team.result", "nativeQueryRef": "Result" }
+          ]
+        }
+      },
+      "sortDefinition": { "sort": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "game_date" } }, "direction": "Descending" }] }
+    },
+    "objects": {
+      "columnHeaders": [{ "properties": {
+        "backColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } },
+        "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+        "bold": { "expr": { "Literal": { "Value": "true" } } },
+        "fontSize": { "expr": { "Literal": { "Value": "11D" } } }
+      } }],
+      "values": [{ "properties": {
+        "fontSize": { "expr": { "Literal": { "Value": "11D" } } },
+        "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } },
+        "backColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0D1117'" } } } } }
+      } }],
+      "grid": [{ "properties": {
+        "gridVertical": { "expr": { "Literal": { "Value": "false" } } },
+        "gridHorizontal": { "expr": { "Literal": { "Value": "true" } } },
+        "gridHorizontalColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#21262D'" } } } } }
+      } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Game Details'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontSize": { "expr": { "Literal": { "Value": "13D" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0D1117'" } } } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "8D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

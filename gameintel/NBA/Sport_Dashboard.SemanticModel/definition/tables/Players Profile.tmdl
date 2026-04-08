@@ -1,0 +1,66 @@
+table 'Players Profile'
+	lineageTag: 73e61cac-be0f-4000-a2e3-7017f4a2639c
+
+	measure Measure =
+			
+			VAR Today_ = TODAY()
+			
+			RETURN
+			
+			SWITCH(TRUE()
+			                    ,SELECTEDVALUE(match_schedule[game_date])= DATEADD(Today_,-1,DAY),1
+			                    ,SELECTEDVALUE(match_schedule[game_date])= TODAY(),1
+			                    ,SELECTEDVALUE(match_schedule[game_date])= TODAY(),1
+			                    ,0)
+		lineageTag: a6f20cb4-4abe-4fd7-a00b-3441e87933b5
+
+	column player_image_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8ce43328-bf0c-407b-9d3e-b4cb9dd6a7f0
+		summarizeBy: none
+		sourceColumn: player_image_id
+
+		annotation SummarizationSetBy = User
+
+	column nba_player_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 47325ec9-872c-42b7-82ed-83fa4ac8a101
+		summarizeBy: none
+		sourceColumn: nba_player_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column image_url
+		dataType: string
+		lineageTag: be982f4e-5a88-4531-9f7b-2af3c74bbb26
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: image_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 755a57f3-2af8-4d94-b26b-c81efe525477
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Players Profile' = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Databases("ROME"),
+				    REMUS = Source{[Name="REMUS"]}[Data],
+				    dbo_nba_players = REMUS{[Schema="dbo",Item="nba_player_images"]}[Data]
+				in
+				    dbo_nba_players
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,52 @@
+table 'Full Roster'
+	lineageTag: 70d776b8-74ee-4ec7-8281-c4c27ece16f1
+
+	column player_image_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e8a8132a-4779-4594-b844-d1092042ddc7
+		summarizeBy: sum
+		sourceColumn: player_image_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column nba_player_id
+		dataType: int64
+		formatString: 0
+		lineageTag: baf73ca4-3f5f-4ecb-ad80-e9e013672c57
+		summarizeBy: sum
+		sourceColumn: nba_player_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column image_url
+		dataType: string
+		lineageTag: f4f3d760-2b2a-4490-89bb-ba8498eda1e8
+		summarizeBy: none
+		sourceColumn: image_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 99aaaa8c-95c2-4059-b87c-a40afb59a57b
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Full Roster' = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Databases("ROME"),
+				    REMUS = Source{[Name="REMUS"]}[Data],
+				    dbo_nba_players = REMUS{[Schema="dbo",Item="nba_player_images"]}[Data]
+				in
+				    dbo_nba_players
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

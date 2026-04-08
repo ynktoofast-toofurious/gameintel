@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "56cd332247ebdff4d396",
+  "position": { "x": 96, "y": 4, "z": 9000, "height": 64, "width": 52, "tabOrder": 9000 },
+  "visual": {
+    "visualType": "image",
+    "objects": {
+      "image": [{ "properties": { "sourceFile": { "image": {
+        "name": { "expr": { "Literal": { "Value": "'nba-logo-nba-icon-transparent-free-png.png'" } } },
+        "url": { "expr": { "ResourcePackageItem": { "PackageName": "RegisteredResources", "PackageType": 1, "ItemName": "nba-logo-nba-icon-transparent-46364992856363674.png" } } },
+        "scaling": { "expr": { "Literal": { "Value": "'Fit'" } } }
+      } } } }]
+    },
+    "visualContainerObjects": {
+      "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

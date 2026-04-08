@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "ce22a5809b0096318d3a",
+  "position": { "x": 70, "y": 700, "z": 9100, "height": 230, "width": 280, "tabOrder": 9100 },
+  "visual": {
+    "visualType": "image",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "PP Home" } }, "queryRef": "Match by Team.PP Home", "nativeQueryRef": "PP Home" }] }
+      }
+    },
+    "objects": {
+      "image": [{ "properties": { "sourceFile": { "image": { "url": { "expr": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "PP Home" } } }, "scaling": { "expr": { "Literal": { "Value": "'Fit'" } } } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Home Player'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "alignment": { "expr": { "Literal": { "Value": "'center'" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "12D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "94071ec6c64fd89d7032",
+  "position": { "x": 0, "y": 0, "z": 4000, "height": 72, "width": 1550, "tabOrder": 4000 },
+  "visual": {
+    "visualType": "shape",
+    "objects": {
+      "shape": [{ "properties": { "tileShape": { "expr": { "Literal": { "Value": "'rectangle'" } } } } }],
+      "rotation": [{ "properties": { "shapeAngle": { "expr": { "Literal": { "Value": "0L" } } } } }],
+      "fill": [{ "properties": { "fillColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } } }, "selector": { "id": "default" } }],
+      "outline": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "text": [
+        { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } },
+        { "properties": {
+            "text": { "expr": { "Literal": { "Value": "'Game Performance'" } } },
+            "bold": { "expr": { "Literal": { "Value": "true" } } },
+            "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } },
+            "fontSize": { "expr": { "Literal": { "Value": "28D" } } },
+            "italic": { "expr": { "Literal": { "Value": "false" } } }
+          }, "selector": { "id": "default" } }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "16e72f609556815eb048",
+  "position": { "x": 770, "y": 338, "z": 11000, "height": 288, "width": 764, "tabOrder": 11000 },
+  "visual": {
+    "visualType": "hundredPercentStackedBarChart",
+    "query": {
+      "queryState": {
+        "Category": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Teams" } }, "Property": "category" } }, "queryRef": "Teams.category", "nativeQueryRef": "category", "active": true }] },
+        "Series": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "queryRef": "Match by Team.result", "nativeQueryRef": "result" }] },
+        "Y": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Total Games" } }, "queryRef": "Match by Team.Total Games", "nativeQueryRef": "Total Games" }] }
+      },
+      "sortDefinition": { "sort": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Total Games" } }, "direction": "Descending" }], "isDefaultSort": true }
+    },
+    "objects": {
+      "labels": [
+        { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } } },
+        { "properties": { "detailColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "detailBold": { "expr": { "Literal": { "Value": "true" } } }, "enableDetailDataLabel": { "expr": { "Literal": { "Value": "true" } } }, "enableValueDataLabel": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'L'" } } } } }] } },
+        { "properties": { "detailColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "detailBold": { "expr": { "Literal": { "Value": "true" } } }, "enableDetailDataLabel": { "expr": { "Literal": { "Value": "true" } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'W'" } } } } }] } }
+      ],
+      "dataPoint": [
+        { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F85149'" } } } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'L'" } } } } }] } },
+        { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#3FB950'" } } } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'W'" } } } } }] } },
+        { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "null" } } } } }] } }
+      ],
+      "categoryAxis": [{ "properties": { "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } }, "fontSize": { "expr": { "Literal": { "Value": "12D" } } }, "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "valueAxis": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "legend": [{ "properties": { "fontSize": { "expr": { "Literal": { "Value": "12D" } } }, "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Division Win/Loss Record'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "8D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

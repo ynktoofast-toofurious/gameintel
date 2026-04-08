@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "488a87893dc4ccd15410",
+  "position": { "x": 782, "y": 132, "z": 8000, "height": 80, "width": 240, "tabOrder": 8000 },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "nba_players" } }, "Property": "player_name" } }, "queryRef": "nba_players.player_name", "nativeQueryRef": "Player", "active": true, "displayName": "Player" }] }
+      },
+      "sortDefinition": { "isDefaultSort": true }
+    },
+    "objects": {
+      "data": [{ "properties": { "mode": { "expr": { "Literal": { "Value": "'Dropdown'" } } } } }],
+      "header": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Player'" } } }, "textSize": { "expr": { "Literal": { "Value": "12D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "items": [{ "properties": { "textSize": { "expr": { "Literal": { "Value": "13D" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "background": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } } } }],
+      "general": [{ "properties": { "responsive": { "expr": { "Literal": { "Value": "false" } } }, "selfFilterEnabled": { "expr": { "Literal": { "Value": "true" } } } } }]
+    },
+    "visualContainerObjects": {
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "width": { "expr": { "Literal": { "Value": "1D" } } }, "radius": { "expr": { "Literal": { "Value": "10D" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

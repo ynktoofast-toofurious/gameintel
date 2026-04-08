@@ -1,0 +1,85 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "7eb1f7b21fcf5ca5bdfe",
+  "displayName": "NBA Command Center",
+  "displayOption": "FitToPage",
+  "height": 950,
+  "width": 1550,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "4a3979d7ce4bab0f16af",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "match_schedule"
+              }
+            },
+            "Property": "game_id"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "99d9fe6846ebc91d7fae",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "33ad156535e3ee5e6a36",
+        "boundFilter": "4a3979d7ce4bab0f16af",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "match_schedule"
+              }
+            },
+            "Property": "game_id"
+          }
+        }
+      }
+    ]
+  },
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0D1117'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "e4c07b4866a5f872e767",
+      "target": "7187bf8868c5f73fdc9b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "e4c07b4866a5f872e767",
+      "target": "16e72f609556815eb048",
+      "type": "HighlightFilter"
+    }
+  ]
+}

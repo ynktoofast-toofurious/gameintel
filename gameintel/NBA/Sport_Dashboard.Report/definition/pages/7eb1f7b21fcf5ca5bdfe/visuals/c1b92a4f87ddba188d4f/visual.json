@@ -1,0 +1,24 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "c1b92a4f87ddba188d4f",
+  "position": { "x": 922, "y": 220, "z": 1300, "height": 108, "width": 290, "tabOrder": 1300 },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Total Teams" } }, "queryRef": "Match by Team.Total Teams", "nativeQueryRef": "Total Teams" }] }
+      }
+    },
+    "objects": {
+      "labels": [{ "properties": { "fontSize": { "expr": { "Literal": { "Value": "36D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } } }],
+      "categoryLabels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Teams'" } } }, "alignment": { "expr": { "Literal": { "Value": "'center'" } } }, "fontSize": { "expr": { "Literal": { "Value": "13D" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "12D" } } }, "width": { "expr": { "Literal": { "Value": "1D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

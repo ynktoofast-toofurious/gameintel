@@ -1,0 +1,156 @@
+table nba_players
+	lineageTag: cd7b4624-c925-4237-984c-d78c0ef84a67
+
+	column player_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 46f0578c-df6c-41f4-8b77-beaf7c33e890
+		summarizeBy: sum
+		sourceColumn: player_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column nba_player_id
+		dataType: int64
+		formatString: 0
+		lineageTag: a172aec8-d6d6-44d1-948e-4d5e917dcfd6
+		summarizeBy: none
+		sourceColumn: nba_player_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column player_name
+		dataType: string
+		lineageTag: 61a3fe29-2de4-4226-a28a-c5de7c4d756b
+		summarizeBy: none
+		sourceColumn: player_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column team_code
+		dataType: string
+		lineageTag: 8585376a-6aa9-47b5-9194-226fa409aa75
+		summarizeBy: none
+		sourceColumn: team_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column jersey_number
+		dataType: string
+		lineageTag: ff8a7ccf-2ea3-4e91-be67-fca2df8eceb6
+		summarizeBy: none
+		sourceColumn: jersey_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column position
+		dataType: string
+		lineageTag: f8a4f058-03df-4f72-8c39-0503254c00f2
+		summarizeBy: none
+		sourceColumn: position
+
+		annotation SummarizationSetBy = Automatic
+
+	column height
+		dataType: string
+		lineageTag: 5b385da6-2c14-4735-8eaa-e811ee578337
+		summarizeBy: none
+		sourceColumn: height
+
+		annotation SummarizationSetBy = Automatic
+
+	column weight_lbs
+		dataType: int64
+		formatString: 0
+		lineageTag: 96f109da-0fce-4987-868d-f082d740d6d2
+		summarizeBy: sum
+		sourceColumn: weight_lbs
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_attended
+		dataType: string
+		lineageTag: f26a8b3f-f4f4-458f-b73a-2656df9a09cc
+		summarizeBy: none
+		sourceColumn: last_attended
+
+		annotation SummarizationSetBy = Automatic
+
+	column country
+		dataType: string
+		lineageTag: 88aa21e6-f650-4b98-9a64-f4d688e3c572
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_of_birth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6ae06220-0e82-4b4c-9828-2c249377729b
+		summarizeBy: none
+		sourceColumn: date_of_birth
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 860fa135-0911-4f03-bdb3-b87ef5c22da5
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a230bc27-5187-4361-8ae3-6e9363375fca
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c95f1d1e-65b4-4c47-a17f-e5781d0b13ab
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8a3571d8-6eaa-4072-9d3a-cc8eacf8e0de
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column nba_team_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e61dcbb-91a2-4d11-989f-976cab452d66
+		summarizeBy: sum
+		sourceColumn: nba_team_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition nba_players = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Databases("ROME"),
+				    REMUS = Source{[Name="REMUS"]}[Data],
+				    dbo_nba_players = REMUS{[Schema="dbo",Item="nba_players"]}[Data]
+				in
+				    dbo_nba_players
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

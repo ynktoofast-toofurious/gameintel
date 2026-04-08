@@ -1,0 +1,20 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "bb22cc33dd44ee55ff66",
+  "position": { "x": 1130, "y": 410, "z": 7100, "height": 130, "width": 220, "tabOrder": 7100 },
+  "visual": {
+    "visualType": "card",
+    "query": { "queryState": { "Values": { "projections": [{ "field": { "Aggregation": { "Expression": { "Column": { "Expression": { "SourceRef": { "Entity": "match_schedule" } }, "Property": "away_score" } }, "Function": 3 } }, "queryRef": "Min(match_schedule.away_score)", "nativeQueryRef": "Away Score" }] } } },
+    "objects": {
+      "labels": [{ "properties": { "fontSize": { "expr": { "Literal": { "Value": "48D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F85149'" } } } } } } }],
+      "categoryLabels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Away Score'" } } }, "alignment": { "expr": { "Literal": { "Value": "'center'" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F85149'" } } } } }, "radius": { "expr": { "Literal": { "Value": "12D" } } }, "width": { "expr": { "Literal": { "Value": "2D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

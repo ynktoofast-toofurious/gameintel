@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "67e69ab57be98a5d9c99",
+  "position": { "x": 50, "y": 330, "z": 6000, "height": 60, "width": 320, "tabOrder": 6000 },
+  "visual": {
+    "visualType": "card",
+    "query": { "queryState": { "Values": { "projections": [{ "field": { "Aggregation": { "Expression": { "Column": { "Expression": { "SourceRef": { "Entity": "match_schedule" } }, "Property": "home_team" } }, "Function": 3 } }, "queryRef": "Min(match_schedule.home_team)", "nativeQueryRef": "Home Team" }] } } },
+    "objects": {
+      "labels": [{ "properties": { "fontSize": { "expr": { "Literal": { "Value": "22D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } } }],
+      "categoryLabels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "visualContainerObjects": {
+      "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

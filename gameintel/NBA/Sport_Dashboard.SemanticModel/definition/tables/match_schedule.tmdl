@@ -1,0 +1,188 @@
+table match_schedule
+	lineageTag: 144d6a8a-b01a-4c54-acfc-35e6477dfb0e
+
+	column game_key
+		dataType: int64
+		formatString: 0
+		lineageTag: d1beb5b2-251f-4315-8c0f-1a9c0c712886
+		summarizeBy: none
+		sourceColumn: game_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 15bd5183-5f64-4594-8cf9-0dabb91a32f6
+		summarizeBy: none
+		sourceColumn: game_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3de47609-5e24-4977-ab98-d16b4f6a4b1a
+		summarizeBy: none
+		sourceColumn: game_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_time
+		dataType: string
+		lineageTag: 6cefe55a-79d3-47e8-88c5-f6fcfe97c5fb
+		summarizeBy: none
+		sourceColumn: game_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column away_team
+		dataType: string
+		lineageTag: 793afe18-0293-43e5-a7b3-9b753367c83f
+		summarizeBy: none
+		sourceColumn: away_team
+
+		annotation SummarizationSetBy = Automatic
+
+	column home_team
+		dataType: string
+		lineageTag: c3c13108-73cb-44cf-a77c-d9ee099d66e4
+		summarizeBy: none
+		sourceColumn: home_team
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_status
+		dataType: string
+		lineageTag: 26c93d31-d7bb-4734-831c-07b88871cb90
+		summarizeBy: none
+		sourceColumn: game_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column home_score
+		dataType: int64
+		formatString: 0
+		lineageTag: e439677f-d342-4c3c-80ad-749437c02b2d
+		summarizeBy: none
+		sourceColumn: home_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column away_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 17be188f-ce32-44b8-91d7-1b5a89f03e2d
+		summarizeBy: none
+		sourceColumn: away_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5bd4cc50-196a-4aee-84de-cfd0d769d6b5
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3c11c78d-6299-463d-b14a-87367ca115d5
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: dfb82387-622b-46e2-89c9-c507e19e176b
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column load_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 83a9f54b-3726-4cfa-9947-b242ff840984
+		summarizeBy: none
+		sourceColumn: load_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column matchup
+		dataType: string
+		lineageTag: 999c62b4-6f60-4313-a726-367ba888cd3a
+		summarizeBy: none
+		sourceColumn: matchup
+
+		annotation SummarizationSetBy = Automatic
+
+	column final_score
+		dataType: string
+		lineageTag: 27a3f268-e9ff-4cd3-911a-c00373493c2d
+		summarizeBy: none
+		sourceColumn: final_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column game_time_bucket
+		dataType: string
+		lineageTag: 40c2eb1e-c164-4eff-a61e-e3818414522c
+		summarizeBy: none
+		sourceColumn: game_time_bucket
+
+		annotation SummarizationSetBy = Automatic
+
+	column away_nba_team_id
+		dataType: int64
+		formatString: 0
+		lineageTag: fdd0fede-2385-4f12-a998-021deef92a9f
+		summarizeBy: none
+		sourceColumn: away_nba_team_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column away_logo_url
+		dataType: string
+		lineageTag: 310ec24e-10cd-4ee3-81e0-1d7a11448607
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: away_logo_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column home_nba_team_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 19625974-49a7-4020-8898-65006e835d30
+		summarizeBy: none
+		sourceColumn: home_nba_team_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column home_logo_url
+		dataType: string
+		lineageTag: 90cc00a3-99a2-42c8-a92e-29b2cd87d9a9
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: home_logo_url
+
+		annotation SummarizationSetBy = Automatic
+
+	partition match_schedule = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("ROME", "REMUS", [Query="SELECT #(lf)      ms.[game_key]#(lf)    , ms.[game_id]#(lf)    , ms.[game_date]#(lf)    , ms.[game_time]#(lf)    , ms.[away_team]#(lf)    , away_t.[team_id]       AS away_nba_team_id#(lf)    , away_logo.[logo_url]   AS away_logo_url#(lf)    , ms.[home_team]#(lf)    , home_t.[team_id]       AS home_nba_team_id#(lf)    , home_logo.[logo_url]   AS home_logo_url#(lf)    , ms.[matchup]#(lf)    , ms.[game_status]#(lf)    , ms.[home_score]#(lf)    , ms.[away_score]#(lf)    , ms.[final_score]#(lf)#(lf)#(lf)    , ms.[is_current]#(lf)    , ms.[valid_from]#(lf)    , ms.[valid_to]#(lf)    , ms.[load_datetime]#(lf)    , CASE#(lf)        WHEN UPPER(ms.[game_status]) IN ('LIVE', 'IN PROGRESS', 'HALFTIME') THEN 'Live'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = CAST(GETDATE() AS DATE) THEN 'Today'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, 1, CAST(GETDATE() AS DATE)) THEN 'Tomorrow'#(lf)        WHEN CAST(ms.[game_date] AS DATE) = DATEADD(DAY, -1, CAST(GETDATE() AS DATE)) THEN 'Yesterday'#(lf)        WHEN CAST(ms.[game_date] AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE)) THEN 'Next 7 Days'#(lf)        WHEN CAST(ms.[game_date] AS DATE) < CAST(GETDATE() AS DATE) THEN 'Past'#(lf)        WHEN CAST(ms.[game_date] AS DATE) > CAST(GETDATE() AS DATE) THEN 'Future'#(lf)        ELSE 'Unknown'#(lf)      END AS game_time_bucket#(lf)FROM [REMUS].[dbo].[match_schedule] ms#(lf)LEFT JOIN [REMUS].[dbo].[nba_teams] away_t#(lf)    ON away_t.[team_name] = CASE WHEN ms.[away_team] = 'Los Angeles Clippers' THEN 'LA Clippers' ELSE ms.[away_team] END#(lf)LEFT JOIN [REMUS].[dbo].[nba_teams] home_t#(lf)    ON home_t.[team_name] = CASE WHEN ms.[home_team] = 'Los Angeles Clippers' THEN 'LA Clippers' ELSE ms.[home_team] END#(lf)LEFT JOIN [REMUS].[dbo].[nba_team_logos] away_logo#(lf)    ON away_logo.[team_id] = away_t.[team_id]#(lf)LEFT JOIN [REMUS].[dbo].[nba_team_logos] home_logo#(lf)    ON home_logo.[team_id] = home_t.[team_id]"])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

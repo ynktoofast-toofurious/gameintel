@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "48dfc80903d13b36d55b",
+  "position": { "x": 650, "y": 140, "z": 10000, "height": 140, "width": 250, "tabOrder": 10000 },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [{ "properties": { "paragraphs": [{ "textRuns": [{ "value": "VS", "textStyle": { "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif", "fontSize": "60pt", "fontWeight": "bold", "fontStyle": "italic", "color": "#1F6FEB" } }], "horizontalTextAlignment": "center" }] } }]
+    },
+    "visualContainerObjects": {
+      "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

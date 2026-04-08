@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "381b3e66ce43dad5fd64",
+  "position": { "x": 16, "y": 132, "z": 5000, "height": 80, "width": 250, "tabOrder": 5000 },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "match_schedule" } }, "Property": "game_date" } }, "queryRef": "match_schedule.game_date", "nativeQueryRef": "game_date", "active": true }] }
+      },
+      "sortDefinition": { "sort": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "match_schedule" } }, "Property": "game_date" } }, "direction": "Ascending" }], "isDefaultSort": true }
+    },
+    "objects": {
+      "data": [{ "properties": { "startDate": { "expr": { "Literal": { "Value": "datetime'2025-10-21T00:00:00'" } } }, "mode": { "expr": { "Literal": { "Value": "'Between'" } } } } }],
+      "header": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Date Range'" } } }, "textSize": { "expr": { "Literal": { "Value": "12D" } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } } } }],
+      "slider": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1F6FEB'" } } } } } } }],
+      "date": [{ "properties": { "textSize": { "expr": { "Literal": { "Value": "11D" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } } }],
+      "general": [{ "properties": { "responsive": { "expr": { "Literal": { "Value": "false" } } }, "filter": { "filter": { "Version": 2, "From": [{ "Name": "m", "Entity": "match_schedule", "Type": 0 }], "Where": [{ "Condition": { "Comparison": { "ComparisonKind": 2, "Left": { "Column": { "Expression": { "SourceRef": { "Source": "m" } }, "Property": "game_date" } }, "Right": { "Literal": { "Value": "datetime'2025-10-21T00:00:00'" } } } } }] } } } }]
+    },
+    "visualContainerObjects": {
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "width": { "expr": { "Literal": { "Value": "1D" } } }, "radius": { "expr": { "Literal": { "Value": "10D" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

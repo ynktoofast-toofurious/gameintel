@@ -1,6 +1,7 @@
 // ============================================================
-// Power BI Embed ΓÇö iframe with URL filter parameters
-// Uses the user's Power BI session (no embed token needed)
+// Power BI Embed — iframe with URL filter parameters
+// Authenticated report URL when filters applied (supports filtering)
+// Publish to Web fallback when no filters (public, no auth needed)
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -50,15 +51,28 @@ function displayActiveFilters() {
 function buildFilterString(filters) {
   // Power BI URL filter format: ?filter=Table/Column eq 'value'
   // Multiple filters joined with " and "
+  // Date filters use: Table/Column ge datetime'YYYY-MM-DDT00:00:00'
   // Docs: https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-url-filters
   var parts = [];
 
-  if (filters.division && filters.division !== "All") {
-    parts.push(CONFIG.filters.division.table + "/" + CONFIG.filters.division.column + " eq '" + filters.division + "'");
+  if (filters.dateStart && filters.dateEnd) {
+    var tbl = CONFIG.filters.dateRange.table;
+    var col = CONFIG.filters.dateRange.column;
+    parts.push(tbl + "/" + col + " ge datetime'" + filters.dateStart + "T00:00:00'");
+    parts.push(tbl + "/" + col + " le datetime'" + filters.dateEnd + "T23:59:59'");
   }
 
   if (filters.team && filters.team !== "All") {
     parts.push(CONFIG.filters.team.table + "/" + CONFIG.filters.team.column + " eq '" + filters.team + "'");
+  }
+
+  if (filters.division && filters.division !== "All") {
+    // No Division column in model — filter by all teams in that division
+    var teams = CONFIG.teamsByDivision[filters.division];
+    if (teams && teams.length > 0 && (!filters.team || filters.team === "All")) {
+      var inList = teams.map(function(t) { return "'" + t + "'"; }).join(",");
+      parts.push(CONFIG.filters.team.table + "/" + CONFIG.filters.team.column + " in (" + inList + ")");
+    }
   }
 
   if (filters.player) {
@@ -72,17 +86,21 @@ function embedReport() {
   var embedContainer = document.getElementById("reportContainer");
   var loadingEl = document.getElementById("reportLoading");
 
-  // Use public embed URL (Publish to Web ΓÇö no auth needed)
-  var fullUrl = CONFIG.powerbi.publicEmbedUrl;
-
-  // Append URL filters from saved session filters
+  // Check if filters are set
   var saved = sessionStorage.getItem("selectedFilters");
+  var filterStr = "";
   if (saved) {
     var filters = JSON.parse(saved);
-    var filterStr = buildFilterString(filters);
-    if (filterStr) {
-      fullUrl += filterStr;
-    }
+    filterStr = buildFilterString(filters);
+  }
+
+  // Use authenticated report URL when filters are applied (Publish to Web ignores filters)
+  // Fall back to public embed URL when no filters are set
+  var fullUrl;
+  if (filterStr) {
+    fullUrl = CONFIG.powerbi.reportUrl + "?" + filterStr.substring(1); // strip leading &
+  } else {
+    fullUrl = CONFIG.powerbi.publicEmbedUrl;
   }
 
   // Create iframe

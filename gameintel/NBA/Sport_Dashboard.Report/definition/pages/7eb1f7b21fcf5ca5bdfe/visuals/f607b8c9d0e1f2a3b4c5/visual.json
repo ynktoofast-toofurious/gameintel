@@ -1,0 +1,32 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "f607b8c9d0e1f2a3b4c5",
+  "position": { "x": 1160, "y": 636, "z": 14000, "height": 304, "width": 374, "tabOrder": 14000 },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Team_Side" } }, "queryRef": "Match by Team.Team_Side", "nativeQueryRef": "Team_Side" }] },
+        "Series": { "projections": [{ "field": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "queryRef": "Match by Team.result", "nativeQueryRef": "result" }] },
+        "Y": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "Total Games" } }, "queryRef": "Match by Team.Total Games", "nativeQueryRef": "Total Games" }] }
+      }
+    },
+    "objects": {
+      "dataPoint": [
+        { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#3FB950'" } } } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'W'" } } } } }] } },
+        { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F85149'" } } } } } }, "selector": { "data": [{ "scopeId": { "Comparison": { "ComparisonKind": 0, "Left": { "Column": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "result" } }, "Right": { "Literal": { "Value": "'L'" } } } } }] } }
+      ],
+      "labels": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } } } }],
+      "categoryAxis": [{ "properties": { "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } }, "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "fontSize": { "expr": { "Literal": { "Value": "13D" } } } } }],
+      "valueAxis": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
+      "legend": [{ "properties": { "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "fontSize": { "expr": { "Literal": { "Value": "11D" } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Home vs Away'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E6EDF3'" } } } } }, "bold": { "expr": { "Literal": { "Value": "true" } } }, "fontSize": { "expr": { "Literal": { "Value": "14D" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "8D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

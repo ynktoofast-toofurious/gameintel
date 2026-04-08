@@ -1,0 +1,158 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "match_schedule",
+          "nodeLineageTag": "144d6a8a-b01a-4c54-acfc-35e6477dfb0e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 284,
+            "y": 0
+          },
+          "nodeIndex": "nba_players",
+          "nodeLineageTag": "cd7b4624-c925-4237-984c-d78c0ef84a67",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 554.99999237060547,
+            "y": 336
+          },
+          "nodeIndex": "Players Profile",
+          "nodeLineageTag": "73e61cac-be0f-4000-a2e3-7017f4a2639c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {},
+          "nodeIndex": "Match by Team",
+          "nodeLineageTag": "fa339670-d190-488a-b1e6-02157df8a811",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {},
+          "nodeIndex": "Teams",
+          "nodeLineageTag": "552618d2-84ca-4e78-992d-e83def7a8370",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {},
+          "nodeIndex": "Full Roster",
+          "nodeLineageTag": "70d776b8-74ee-4ec7-8281-c4c27ece16f1",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    },
+    {
+      "ordinal": 1,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 699.20000076293945,
+            "y": 0
+          },
+          "nodeIndex": "match_schedule",
+          "nodeLineageTag": "144d6a8a-b01a-4c54-acfc-35e6477dfb0e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 350.20000076293945,
+            "y": 0
+          },
+          "nodeIndex": "Match by Team",
+          "nodeLineageTag": "fa339670-d190-488a-b1e6-02157df8a811",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "Teams",
+          "nodeLineageTag": "552618d2-84ca-4e78-992d-e83def7a8370",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 358.20000076293945,
+            "y": 342
+          },
+          "nodeIndex": "nba_players",
+          "nodeLineageTag": "cd7b4624-c925-4237-984c-d78c0ef84a67",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        }
+      ],
+      "name": "Teams",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Teams",
+  "defaultDiagram": "All tables"
+}

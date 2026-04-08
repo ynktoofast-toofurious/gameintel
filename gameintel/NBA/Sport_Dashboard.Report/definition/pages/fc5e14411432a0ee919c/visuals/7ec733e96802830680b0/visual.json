@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "7ec733e96802830680b0",
+  "position": { "x": 1200, "y": 700, "z": 9200, "height": 230, "width": 280, "tabOrder": 9200 },
+  "visual": {
+    "visualType": "image",
+    "query": {
+      "queryState": {
+        "Values": { "projections": [{ "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "PP Away" } }, "queryRef": "Match by Team.PP Away", "nativeQueryRef": "PP Away" }] }
+      }
+    },
+    "objects": {
+      "image": [{ "properties": { "sourceFile": { "image": { "url": { "expr": { "Measure": { "Expression": { "SourceRef": { "Entity": "Match by Team" } }, "Property": "PP Away" } } }, "scaling": { "expr": { "Literal": { "Value": "'Fit'" } } } } } } }]
+    },
+    "visualContainerObjects": {
+      "title": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "text": { "expr": { "Literal": { "Value": "'Away Player'" } } }, "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8B949E'" } } } } }, "alignment": { "expr": { "Literal": { "Value": "'center'" } } } } }],
+      "background": [{ "properties": { "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#161B22'" } } } } }, "transparency": { "expr": { "Literal": { "Value": "0D" } } } } }],
+      "border": [{ "properties": { "show": { "expr": { "Literal": { "Value": "true" } } }, "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#30363D'" } } } } }, "radius": { "expr": { "Literal": { "Value": "12D" } } } } }],
+      "visualHeader": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
