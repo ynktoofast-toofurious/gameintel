@@ -9,7 +9,7 @@
       "outline": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }],
       "fill": [{ "properties": { "fillColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#21262D'" } } } } } }, "selector": { "id": "default" } }]
     },
-    "vcObjects": {
+    "visualContainerObjects": {
       "background": [{ "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }]
     },
     "drillFilterOtherVisuals": true
