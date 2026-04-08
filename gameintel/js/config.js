@@ -9,7 +9,8 @@ const CONFIG = {
     redirectUri: window.location.origin + window.location.pathname,
     scopes: [
       "https://analysis.windows.net/powerbi/api/Report.Read.All",
-      "https://analysis.windows.net/powerbi/api/Dataset.Read.All"
+      "https://analysis.windows.net/powerbi/api/Dataset.Read.All",
+      "https://analysis.windows.net/powerbi/api/Dataset.Execute"
     ]
   },
 
@@ -22,6 +23,7 @@ const CONFIG = {
   // Power BI Embed
   powerbi: {
     reportId: "c8fa7b41-d7db-45f4-bd62-b18e49ba90cd",
+    datasetId: "715fea21-8441-45f5-9703-82aabe325f4e",
     groupId: "2648337b-b32f-42ab-a1b9-576f27be4c5e",
     pageId: "7eb1f7b21fcf5ca5bdfe",
     // Standard report URL — supports URL filtering (user must be signed into PBI)

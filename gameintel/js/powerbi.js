@@ -319,13 +319,19 @@ function processReportPrompt() {
 
   // Use Gemini if available, else offline engine
   if (typeof GeminiAI !== "undefined" && GeminiAI.isAvailable()) {
-    container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem"><span class="gemini-thinking">Gemini is thinking...</span></p></div>';
+    container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem"><span class="gemini-thinking">Querying AI &amp; semantic model...</span></p></div>';
     GeminiAI.queryStructured(input, parsed).then(function(response) {
       storeAndRender(response);
     }).catch(function(err) {
-      console.warn("Gemini error, falling back to offline:", err.message);
-      var response = semanticQuery(input, parsed);
-      storeAndRender(response);
+      console.error("[GeminiAI] Failed on report page:", err.message, err.stack || "");
+      // Show error instead of silently falling back to hardcoded data
+      container.innerHTML = '<div class="guide-ai-answer">' +
+        '<div class="guide-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Gemini Unavailable <span class="ai-source-label offline">Error</span></div>' +
+        '<div class="guide-ai-body">' +
+        '<p>Could not connect to Gemini AI: <em>' + err.message + '</em></p>' +
+        '<p>Check your API key in Settings (gear icon).</p>' +
+        '<p style="margin-top:.5rem"><button class="btn btn-primary btn-sm" onclick="processReportPrompt()" style="font-size:.75rem;padding:.25rem .75rem">⟳ Retry</button></p>' +
+        '</div></div>';
     });
   } else {
     container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem">Analyzing...</p></div>';

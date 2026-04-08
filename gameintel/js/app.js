@@ -195,13 +195,21 @@ function processPrompt() {
 
   // Use Gemini if available, otherwise fall back to offline AI
   if (typeof GeminiAI !== "undefined" && GeminiAI.isAvailable()) {
-    resultEl.innerHTML = '<span class="prompt-spinner"></span> <span class="gemini-thinking">Gemini is thinking...</span>';
+    resultEl.innerHTML = '<span class="prompt-spinner"></span> <span class="gemini-thinking">Querying AI &amp; semantic model...</span>';
     GeminiAI.queryStructured(input, parsed).then(function(response) {
       renderSemanticResponse(response, parsed, resultEl);
     }).catch(function(err) {
       console.error("[GeminiAI] Failed:", err.message, err.stack || "");
-      var semanticResponse = semanticQuery(input, parsed);
-      renderSemanticResponse(semanticResponse, parsed, resultEl);
+      // Show Gemini error with option to retry — don't silently show hardcoded data
+      resultEl.className = "prompt-result";
+      resultEl.innerHTML = '<div class="ai-response-card">' +
+        '<div class="ai-answer-section">' +
+        '<div class="ai-answer-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f0883e" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span>Gemini Unavailable</span><span class="ai-source-label offline">Error</span></div>' +
+        '<div class="ai-answer-body">' +
+        '<p>Could not connect to Gemini AI: <em>' + err.message + '</em></p>' +
+        '<p>Check your API key in the <strong>Settings</strong> (gear icon) and ensure it is valid.</p>' +
+        '<p style="margin-top:.5rem"><button class="btn btn-primary btn-sm" onclick="processPrompt()" style="font-size:.75rem;padding:.25rem .75rem">⟳ Retry</button></p>' +
+        '</div></div></div>';
     });
   } else {
     resultEl.innerHTML = '<span class="prompt-spinner"></span> Analyzing your request...';

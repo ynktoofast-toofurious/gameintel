@@ -164,9 +164,10 @@ var GeminiAI = (function() {
       return Promise.reject(new Error("NO_TOKEN"));
     }
 
+    var datasetId = CONFIG.powerbi.datasetId || CONFIG.powerbi.reportId;
     var url = "https://api.powerbi.com/v1.0/myorg/groups/" +
       CONFIG.powerbi.groupId + "/datasets/" +
-      CONFIG.powerbi.reportId + "/executeQueries";
+      datasetId + "/executeQueries";
 
     var body = {
       queries: [{ query: daxQuery }],
@@ -230,31 +231,34 @@ var GeminiAI = (function() {
   function queryStructured(userMessage, parsed) {
     try {
       var hasToken = (typeof pbiAccessToken !== "undefined") && !!pbiAccessToken;
+      console.log("[GeminiAI] Starting query pipeline. PBI token:", hasToken ? "YES" : "NO", "API key:", isAvailable() ? "YES" : "NO");
 
       if (!hasToken) {
-        // No PBI token — skip DAX execution, use Gemini with model knowledge only
+        console.log("[GeminiAI] No PBI token — using Gemini model knowledge only");
         return queryWithModelKnowledge(userMessage, parsed);
       }
 
       // Step 1: Ask Gemini to generate a DAX query
+      console.log("[GeminiAI] Step 1: Asking Gemini to generate DAX...");
       return callGemini(buildDaxPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
         .then(function(daxResponse) {
           var dax = daxResponse.trim().replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
 
-          // If Gemini says no DAX needed (metadata / conversational question)
           if (dax === "NO_DAX_NEEDED" || dax.indexOf("EVALUATE") === -1) {
+            console.log("[GeminiAI] Gemini says no DAX needed, using model knowledge");
             return queryWithModelKnowledge(userMessage, parsed);
           }
 
-          console.log("[GeminiAI] Generated DAX:", dax);
+          console.log("[GeminiAI] Step 2: Executing DAX:", dax);
 
           // Step 2: Execute the DAX query against Power BI
           return executeDAX(dax)
             .then(function(rows) {
-              console.log("[GeminiAI] DAX returned", rows.length, "rows");
+              console.log("[GeminiAI] Step 2 complete: DAX returned", rows.length, "rows");
               var resultText = formatResults(rows);
 
               // Step 3: Send results back to Gemini for interpretation
+              console.log("[GeminiAI] Step 3: Sending results to Gemini for interpretation...");
               var interpretPrompt = "USER QUESTION: " + userMessage + "\n\n" +
                 "DAX QUERY EXECUTED:\n" + dax + "\n\n" +
                 "LIVE DATA RESULTS:\n" + resultText;
@@ -262,16 +266,17 @@ var GeminiAI = (function() {
               return callGemini(buildAnswerPrompt(), interpretPrompt, { temperature: 0.7, maxTokens: 1200 });
             })
             .then(function(answer) {
+              console.log("[GeminiAI] Pipeline complete — live data answer ready");
               return buildStructuredResponse(answer, parsed, dax, "gemini-live");
             })
             .catch(function(daxErr) {
-              console.warn("[GeminiAI] DAX execution failed:", daxErr.message);
+              console.warn("[GeminiAI] DAX execution failed:", daxErr.message, "— falling back to Gemini knowledge");
               return queryWithModelKnowledge(userMessage, parsed);
             });
         })
         .catch(function(err) {
-          console.warn("[GeminiAI] DAX generation failed:", err.message);
-          return queryWithModelKnowledge(userMessage, parsed);
+          console.error("[GeminiAI] Gemini API call failed:", err.message);
+          throw err; // Let the error propagate to the UI
         });
     } catch (syncErr) {
       console.error("[GeminiAI] Sync error in queryStructured:", syncErr);
