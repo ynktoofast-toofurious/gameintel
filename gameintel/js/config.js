@@ -10,7 +10,7 @@ const CONFIG = {
     scopes: [
       "https://analysis.windows.net/powerbi/api/Report.Read.All",
       "https://analysis.windows.net/powerbi/api/Dataset.Read.All",
-      "https://analysis.windows.net/powerbi/api/Dataset.Execute"
+      "https://analysis.windows.net/powerbi/api/Dataset.ReadWrite.All"
     ]
   },
 
