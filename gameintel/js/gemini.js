@@ -1,7 +1,7 @@
 // ============================================================
-// Gemini LLM Integration — Live AI Q&A with DAX Execution
-// Flow: User Question → Gemini generates DAX → Execute against
-// Power BI Semantic Model → Gemini interprets real results
+// Gemini LLM Integration — Live AI Q&A with SQL Execution
+// Flow: User Question → LLM generates SQL → Execute against
+// PostgreSQL Database → LLM interprets real results
 // ============================================================
 
 var GeminiAI = (function() {
@@ -35,27 +35,27 @@ var GeminiAI = (function() {
     schema += "Season: " + s.season.start + " to " + s.season.end + "\n";
     schema += "League: 30 teams, 6 divisions, 2 conferences\n\n";
 
-    schema += "TABLES:\n";
+    schema += "TABLES (PostgreSQL):\n";
     for (var tName in s.tables) {
       var t = s.tables[tName];
-      schema += "- '" + tName + "': " + t.description + "\n";
+      schema += "- \"" + tName + "\": " + t.description + "\n";
       schema += "  Columns: ";
       var cols = [];
       for (var c in t.columns) {
-        cols.push("'" + tName + "'[" + c + "] (" + t.columns[c].type + " — " + t.columns[c].description + ")");
+        cols.push(tName + "." + c + " (" + t.columns[c].type + " — " + t.columns[c].description + ")");
       }
       schema += cols.join(", ") + "\n";
     }
 
-    schema += "\nMEASURES (defined in model):\n";
+    schema += "\nCOMMON AGGREGATIONS:\n";
     for (var mName in s.measures) {
       var m = s.measures[mName];
-      schema += "- [" + mName + "] = " + m.expression + " — " + m.description + "\n";
+      schema += "- " + mName + ": " + m.description + "\n";
     }
 
-    schema += "\nRELATIONSHIPS:\n";
+    schema += "\nRELATIONSHIPS (JOIN keys):\n";
     s.relationships.forEach(function(r) {
-      schema += "- " + r.from + " → " + r.to + "\n";
+      schema += "- " + r.from + " = " + r.to + "\n";
     });
 
     schema += "\nDIVISIONS & TEAMS:\n";
@@ -66,29 +66,28 @@ var GeminiAI = (function() {
     return schema;
   }
 
-  // Prompt for Step 1: Generate DAX query
-  function buildDaxPrompt() {
-    return "You are a DAX query generator for a Power BI semantic model.\n" +
-      "Given a user's natural language question, generate a valid DAX EVALUATE query.\n\n" +
+  // Prompt for Step 1: Generate SQL query
+  function buildSqlPrompt() {
+    return "You are a PostgreSQL query generator for an NBA analytics database.\n" +
+      "Given a user's natural language question, generate a valid PostgreSQL SELECT query.\n\n" +
       "RULES:\n" +
-      "- Return ONLY the DAX query, no explanation, no markdown fences.\n" +
-      "- Use EVALUATE with SUMMARIZECOLUMNS, TOPN, FILTER, CALCULATETABLE, or ADDCOLUMNS as needed.\n" +
-      "- Always use single quotes around table names with spaces: 'Match by Team'\n" +
-      "- For the 'Team' column in Teams table, use Teams[Team] (NOT team_name).\n" +
-      "- Use existing measures like [Total Games], [Win Rate], [Avg Score] when possible.\n" +
-      "- Limit results to 25 rows max using TOPN if the result set could be large.\n" +
-      "- For win rate, use: DIVIDE(CALCULATE(COUNTROWS('Match by Team'), 'Match by Team'[result]=\"W\"), COUNTROWS('Match by Team'))\n" +
-      "- For scores, home_pts and away_pts are in 'Match by Team'.\n" +
-      "- The result column values are \"W\" or \"L\".\n" +
-      "- If the question is about model/schema/metadata (not data), return exactly: NO_DAX_NEEDED\n" +
-      "- If the question is conversational/greeting, return exactly: NO_DAX_NEEDED\n\n" +
-      "SEMANTIC MODEL:\n" + buildModelSchema();
+      "- Return ONLY the SQL query, no explanation, no markdown fences.\n" +
+      "- Use double quotes around table names with spaces: \"Match by Team\"\n" +
+      "- Use standard PostgreSQL syntax: JOIN, WHERE, GROUP BY, ORDER BY, LIMIT.\n" +
+      "- Limit results to 25 rows max using LIMIT.\n" +
+      "- For win rate, use: COUNT(*) FILTER (WHERE result = 'W')::float / COUNT(*)\n" +
+      "- For scores, home_pts and away_pts are in \"Match by Team\".\n" +
+      "- The result column values are 'W' or 'L'.\n" +
+      "- Use JOIN to connect tables (see relationships below).\n" +
+      "- If the question is about schema/metadata (not data), return exactly: NO_SQL_NEEDED\n" +
+      "- If the question is conversational/greeting, return exactly: NO_SQL_NEEDED\n\n" +
+      "DATABASE SCHEMA:\n" + buildModelSchema();
   }
 
   // Prompt for Step 2: Interpret results
   function buildAnswerPrompt() {
     return "You are an expert NBA analytics AI assistant in a Power BI dashboard called GameIntel.\n" +
-      "You have been given LIVE DATA from the Power BI semantic model.\n" +
+      "You have been given LIVE DATA from the PostgreSQL database.\n" +
       "Answer the user's question using the REAL DATA provided.\n\n" +
       "RULES:\n" +
       "- Use the actual numbers from the data — these are REAL, not estimates.\n" +
@@ -105,20 +104,19 @@ var GeminiAI = (function() {
       "- Home vs Away (split comparison)\n" +
       "- Match Schedule (game-by-game table)\n" +
       "- Team/Division/Player Slicers\n\n" +
-      "SEMANTIC MODEL:\n" + buildModelSchema();
+      "DATABASE SCHEMA:\n" + buildModelSchema();
   }
 
-  // Fallback prompt (no DAX, just model knowledge)
+  // Fallback prompt (no SQL, just model knowledge)
   function buildFallbackPrompt() {
     return "You are an expert NBA analytics AI assistant embedded in a Power BI dashboard called GameIntel.\n" +
-      "IMPORTANT: You do NOT have access to live data right now. The user is not signed into Power BI.\n" +
-      "For questions about specific player rosters, team stats, win rates, or scores — tell the user you need live data access.\n" +
-      "Suggest they sign in to Power BI (via the report page) so you can query the actual semantic model with DAX.\n" +
-      "You CAN answer general questions about the data model structure, divisions, conferences, and available measures.\n" +
+      "IMPORTANT: You do NOT have access to live data right now. The database connection may be down.\n" +
+      "For questions about specific player rosters, team stats, win rates, or scores — tell the user the database is currently unavailable.\n" +
+      "You CAN answer general questions about the data model structure, divisions, conferences, and available data.\n" +
       "Do NOT guess or make up player-team assignments — the dataset may differ from public knowledge.\n" +
       "Be concise, confident. Use HTML tags (no markdown).\n" +
-      "Format: <strong> for emphasis, <ul><li> for lists, <code> for DAX/column names.\n\n" +
-      "SEMANTIC MODEL:\n" + buildModelSchema();
+      "Format: <strong> for emphasis, <ul><li> for lists, <code> for column names.\n\n" +
+      "DATABASE SCHEMA:\n" + buildModelSchema();
   }
 
   // ============================================================
@@ -269,36 +267,32 @@ var GeminiAI = (function() {
   }
 
   // ============================================================
-  // Power BI DAX Query Execution
+  // SQL Execution via Vercel Backend (PostgreSQL)
   // ============================================================
 
-  // ============================================================
-  // DAX Execution via Vercel Backend
-  // ============================================================
+  var SQL_API_URL = (typeof CONFIG !== "undefined" && CONFIG.api && CONFIG.api.queryEndpoint)
+    ? CONFIG.api.queryEndpoint
+    : "https://gameintel.vercel.app/api/query";
 
-  var DAX_API_URL = (typeof CONFIG !== "undefined" && CONFIG.api && CONFIG.api.daxEndpoint)
-    ? CONFIG.api.daxEndpoint
-    : "https://gameintel.vercel.app/api/dax";
-
-  function executeDAX(daxQuery) {
-    return fetch(DAX_API_URL, {
+  function executeSQL(sqlQuery) {
+    return fetch(SQL_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: daxQuery })
+      body: JSON.stringify({ query: sqlQuery })
     })
     .then(function(res) {
       if (!res.ok) {
         return res.json().then(function(data) {
-          throw new Error(data.error || "DAX execution failed (" + res.status + ")");
+          throw new Error(data.error || "SQL execution failed (" + res.status + ")");
         }).catch(function(parseErr) {
-          if (parseErr.message.indexOf("DAX") !== -1) throw parseErr;
-          throw new Error("DAX execution failed (" + res.status + ")");
+          if (parseErr.message.indexOf("SQL") !== -1) throw parseErr;
+          throw new Error("SQL execution failed (" + res.status + ")");
         });
       }
       return res.json();
     })
     .then(function(data) {
-      if (data.error) throw new Error("DAX error: " + data.error);
+      if (data.error) throw new Error("SQL error: " + data.error);
       return data.rows || [];
     });
   }
@@ -330,50 +324,50 @@ var GeminiAI = (function() {
   // Main Query Pipeline
   // ============================================================
 
-  // Full pipeline: Question → DAX → Execute → Interpret
+  // Full pipeline: Question → SQL → Execute → Interpret
   function queryStructured(userMessage, parsed) {
     try {
-      console.log("[GeminiAI] Starting query pipeline. API key:", isAvailable() ? "YES" : "NO", "Backend:", DAX_API_URL);
+      console.log("[GeminiAI] Starting query pipeline. API key:", isAvailable() ? "YES" : "NO", "Backend:", SQL_API_URL);
 
-      // Step 1: Ask AI to generate a DAX query
-      console.log("[GeminiAI] Step 1: Asking AI to generate DAX...");
-      return callAI(buildDaxPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
-        .then(function(daxResponse) {
-          var dax = daxResponse.trim().replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
+      // Step 1: Ask AI to generate a SQL query
+      console.log("[GeminiAI] Step 1: Asking AI to generate SQL...");
+      return callAI(buildSqlPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
+        .then(function(sqlResponse) {
+          var sql = sqlResponse.trim().replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
 
-          if (dax === "NO_DAX_NEEDED" || dax.indexOf("EVALUATE") === -1) {
-            console.log("[GeminiAI] Gemini says no DAX needed, using model knowledge");
+          if (sql === "NO_SQL_NEEDED" || sql.toUpperCase().indexOf("SELECT") === -1) {
+            console.log("[GeminiAI] AI says no SQL needed, using model knowledge");
             return queryWithModelKnowledge(userMessage, parsed);
           }
 
-          console.log("[GeminiAI] Step 2: Executing DAX:", dax);
+          console.log("[GeminiAI] Step 2: Executing SQL:", sql);
 
-          // Step 2: Execute the DAX query against Power BI
-          return executeDAX(dax)
+          // Step 2: Execute the SQL query against PostgreSQL
+          return executeSQL(sql)
             .then(function(rows) {
-              console.log("[GeminiAI] Step 2 complete: DAX returned", rows.length, "rows");
+              console.log("[GeminiAI] Step 2 complete: SQL returned", rows.length, "rows");
               var resultText = formatResults(rows);
 
-              // Step 3: Send results back to Gemini for interpretation
-              console.log("[GeminiAI] Step 3: Sending results to Gemini for interpretation...");
+              // Step 3: Send results back to AI for interpretation
+              console.log("[GeminiAI] Step 3: Sending results to AI for interpretation...");
               var interpretPrompt = "USER QUESTION: " + userMessage + "\n\n" +
-                "DAX QUERY EXECUTED:\n" + dax + "\n\n" +
+                "SQL QUERY EXECUTED:\n" + sql + "\n\n" +
                 "LIVE DATA RESULTS:\n" + resultText;
 
               return callAI(buildAnswerPrompt(), interpretPrompt, { temperature: 0.7, maxTokens: 1200 });
             })
             .then(function(answer) {
               console.log("[GeminiAI] Pipeline complete — live data answer ready");
-              return buildStructuredResponse(answer, parsed, dax, "gemini-live");
+              return buildStructuredResponse(answer, parsed, sql, "live-db");
             })
-            .catch(function(daxErr) {
-              console.warn("[GeminiAI] DAX execution failed:", daxErr.message, "— falling back to Gemini knowledge");
+            .catch(function(sqlErr) {
+              console.warn("[GeminiAI] SQL execution failed:", sqlErr.message, "— falling back to AI knowledge");
               return queryWithModelKnowledge(userMessage, parsed);
             });
         })
         .catch(function(err) {
-          console.error("[GeminiAI] Gemini API call failed:", err.message);
-          throw err; // Let the error propagate to the UI
+          console.error("[GeminiAI] AI call failed:", err.message);
+          throw err;
         });
     } catch (syncErr) {
       console.error("[GeminiAI] Sync error in queryStructured:", syncErr);
@@ -390,7 +384,7 @@ var GeminiAI = (function() {
   }
 
   // Build the structured response object compatible with the existing UI
-  function buildStructuredResponse(answerText, parsed, daxQuery, source) {
+  function buildStructuredResponse(answerText, parsed, sqlQuery, source) {
     // Extract referenced visuals
     var visuals = [];
     var visualNames = Object.keys(SEMANTIC_MODEL.visuals);
@@ -407,12 +401,12 @@ var GeminiAI = (function() {
 
     var response = {
       answer: answerText,
-      insight: daxQuery ? "Queried live data from the Power BI semantic model" : null,
+      insight: sqlQuery ? "Queried live data from the PostgreSQL database" : null,
       suggestedVisuals: visuals.length > 0 ? visuals : ["KPI Cards"],
       measures: measures,
       tables: parsed && parsed.team ? ["Match by Team", "Teams"] : ["Match by Team"],
       filterLogic: buildFilterLogic(parsed),
-      daxQuery: daxQuery || null,
+      sqlQuery: sqlQuery || null,
       source: source
     };
 
@@ -424,16 +418,16 @@ var GeminiAI = (function() {
     if (!parsed) return [];
     var filters = [];
     if (parsed.team) {
-      filters.push({ table: "Teams", column: "Team", dax: "Teams[Team] = \"" + parsed.team + "\"" });
+      filters.push({ table: "Teams", column: "team_name", sql: "Teams.team_name = '" + parsed.team.replace(/'/g, "''") + "'" });
     }
     if (parsed.division) {
-      filters.push({ table: "Teams", column: "Division", dax: "Teams[Division] = \"" + parsed.division + "\"" });
+      filters.push({ table: "Teams", column: "Division", sql: "Teams.\"Division\" = '" + parsed.division.replace(/'/g, "''") + "'" });
     }
     if (parsed.player) {
-      filters.push({ table: "nba_players", column: "player_name", dax: "nba_players[player_name] = \"" + parsed.player + "\"" });
+      filters.push({ table: "nba_players", column: "player_name", sql: "nba_players.player_name = '" + parsed.player.replace(/'/g, "''") + "'" });
     }
     if (parsed.dateRange) {
-      filters.push({ table: "Match by Team", column: "game_date", dax: "'Match by Team'[game_date] >= DATE(" + parsed.dateRange.start.replace(/-/g, ",") + ") && 'Match by Team'[game_date] <= DATE(" + parsed.dateRange.end.replace(/-/g, ",") + ")" });
+      filters.push({ table: "Match by Team", column: "game_date", sql: "\"Match by Team\".game_date BETWEEN '" + parsed.dateRange.start + "' AND '" + parsed.dateRange.end + "'" });
     }
     return filters;
   }
@@ -550,8 +544,8 @@ var GeminiAI = (function() {
           '<div class="gemini-divider"></div>' +
 
           // Backend status
-          '<label class="gemini-label">Live Data (Vercel Backend)</label>' +
-          '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> DAX queries routed via <code style="font-size:.75rem">' + DAX_API_URL + '</code></p>' +
+          '<label class="gemini-label">Live Data (PostgreSQL via Vercel)</label>' +
+          '<p class="gemini-key-status connected"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> SQL queries routed via <code style="font-size:.75rem">' + SQL_API_URL + '</code></p>' +
         '</div>' +
         '<div class="gemini-modal-footer">' +
           '<button class="btn btn-ghost" onclick="document.getElementById(\'geminiSettingsModal\').remove()">Cancel</button>' +

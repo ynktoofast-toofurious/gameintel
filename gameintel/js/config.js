@@ -4,7 +4,7 @@
 const CONFIG = {
   // Vercel Backend API
   api: {
-    daxEndpoint: "https://gameintel.vercel.app/api/dax"
+    queryEndpoint: "https://gameintel.vercel.app/api/query"
   },
 
   // Azure AD / Microsoft Entra ID
