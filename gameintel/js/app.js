@@ -24,6 +24,28 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSavedFilters();
 });
 
+var activePromptController = null;
+
+function setPromptCancelVisible(visible) {
+  var btn = document.getElementById("promptCancelBtn");
+  if (!btn) return;
+  btn.style.display = visible ? "inline-flex" : "none";
+}
+
+function cancelPromptRequest() {
+  if (activePromptController) {
+    activePromptController.abort();
+    activePromptController = null;
+  }
+  setPromptCancelVisible(false);
+
+  var resultEl = document.getElementById("promptResult");
+  if (!resultEl) return;
+  resultEl.style.display = "block";
+  resultEl.className = "prompt-result";
+  resultEl.innerHTML = '<em>Request cancelled.</em>';
+}
+
 function initFilters() {
   // Populate Division dropdown (if present)
   const divSelect = document.getElementById("filterDivision");
@@ -195,6 +217,7 @@ function processPrompt() {
 
   // Fast path: filter guidance is handled locally without waiting on LLM/SQL.
   if (shouldUseFastLocalResponse(input, parsed)) {
+    setPromptCancelVisible(false);
     resultEl.innerHTML = '<span class="prompt-spinner"></span> Applying filters...';
     requestAnimationFrame(function() {
       try {
@@ -213,10 +236,21 @@ function processPrompt() {
 
   // Use Gemini if available, otherwise fall back to offline AI
   if (typeof GeminiAI !== "undefined" && GeminiAI.isAvailable()) {
+    if (activePromptController) activePromptController.abort();
+    activePromptController = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    setPromptCancelVisible(true);
+
     resultEl.innerHTML = '<span class="prompt-spinner"></span> <span class="gemini-thinking">Querying AI &amp; semantic model<span class="dot-pulse">...</span></span>';
-    GeminiAI.queryStructured(input, parsed).then(function(response) {
+    GeminiAI.queryStructured(input, parsed, {
+      signal: activePromptController ? activePromptController.signal : undefined
+    }).then(function(response) {
       renderSemanticResponse(response, parsed, resultEl);
     }).catch(function(err) {
+      if (err && (err.name === "AbortError" || err.message === "Request cancelled")) {
+        resultEl.className = "prompt-result";
+        resultEl.innerHTML = '<em>Request cancelled.</em>';
+        return;
+      }
       console.error("[GeminiAI] Failed:", err.message, err.stack || "");
       // Show Gemini error with option to retry — don't silently show hardcoded data
       resultEl.className = "prompt-result";
@@ -228,8 +262,12 @@ function processPrompt() {
         '<p>Check your API key in the <strong>Settings</strong> (gear icon) and ensure it is valid.</p>' +
         '<p style="margin-top:.5rem"><button class="btn btn-primary btn-sm" onclick="processPrompt()" style="font-size:.75rem;padding:.25rem .75rem">⟳ Retry</button></p>' +
         '</div></div></div>';
+    }).finally(function() {
+      activePromptController = null;
+      setPromptCancelVisible(false);
     });
   } else {
+    setPromptCancelVisible(false);
     resultEl.innerHTML = '<span class="prompt-spinner"></span> Analyzing your request...';
     setTimeout(() => {
       try {

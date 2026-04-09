@@ -160,7 +160,8 @@ var GeminiAI = (function() {
     return fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: opts && opts.signal ? opts.signal : undefined
     })
     .then(function(res) {
       if (!res.ok) {
@@ -248,7 +249,8 @@ var GeminiAI = (function() {
         ],
         temperature: (opts && opts.temperature) || 0.7,
         max_tokens: (opts && opts.maxTokens) || 1024
-      })
+      }),
+      signal: opts && opts.signal ? opts.signal : undefined
     })
     .then(function(res) {
       if (!res.ok) {
@@ -282,15 +284,16 @@ var GeminiAI = (function() {
     ? CONFIG.api.queryEndpoint
     : "https://gameintel.vercel.app/api/query";
 
-  function executeSQL(sqlQuery) {
-    var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
-    var timeoutId = controller ? setTimeout(function() { controller.abort(); }, 8000) : null;
+  function executeSQL(sqlQuery, opts) {
+    var localController = (!opts || !opts.signal) && (typeof AbortController !== "undefined") ? new AbortController() : null;
+    var timeoutId = localController ? setTimeout(function() { localController.abort(); }, 8000) : null;
+    var signal = (opts && opts.signal) ? opts.signal : (localController ? localController.signal : undefined);
 
     return fetch(SQL_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: sqlQuery }),
-      signal: controller ? controller.signal : undefined
+      signal: signal
     })
     .then(function(res) {
       if (!res.ok) {
@@ -311,7 +314,8 @@ var GeminiAI = (function() {
     .catch(function(err) {
       if (timeoutId) clearTimeout(timeoutId);
       if (err && err.name === "AbortError") {
-        throw new Error("SQL execution timed out after 8 seconds");
+        if (localController) throw new Error("SQL execution timed out after 8 seconds");
+        throw new Error("Request cancelled");
       }
       throw err;
     });
@@ -345,19 +349,23 @@ var GeminiAI = (function() {
   // ============================================================
 
   // Full pipeline: Question → SQL → Execute → Interpret
-  function queryStructured(userMessage, parsed) {
+  function queryStructured(userMessage, parsed, opts) {
     try {
       console.log("[GeminiAI] Starting query pipeline. API key:", isAvailable() ? "YES" : "NO", "Backend:", SQL_API_URL);
 
       // Step 1: Ask AI to generate a SQL query
       console.log("[GeminiAI] Step 1: Asking AI to generate SQL...");
-      return callAI(buildSqlPrompt(), userMessage, { temperature: 0.2, maxTokens: 512 })
+      return callAI(buildSqlPrompt(), userMessage, {
+        temperature: 0.2,
+        maxTokens: 512,
+        signal: opts && opts.signal ? opts.signal : undefined
+      })
         .then(function(sqlResponse) {
           var sql = sqlResponse.trim().replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
 
           if (sql === "NO_SQL_NEEDED" || (sql.toUpperCase().indexOf("SELECT") === -1 && sql.toUpperCase().indexOf("WITH") === -1)) {
             console.log("[GeminiAI] AI says no SQL needed, using model knowledge. Raw response:", sqlResponse.slice(0, 200));
-            return queryWithModelKnowledge(userMessage, parsed).then(function(resp) {
+            return queryWithModelKnowledge(userMessage, parsed, opts).then(function(resp) {
               resp.insight = "AI decided no SQL query was needed (response: " + sqlResponse.trim().slice(0, 80) + ")";
               return resp;
             });
@@ -366,7 +374,7 @@ var GeminiAI = (function() {
           console.log("[GeminiAI] Step 2: Executing SQL:", sql);
 
           // Step 2: Execute the SQL query against PostgreSQL
-          return executeSQL(sql)
+          return executeSQL(sql, { signal: opts && opts.signal ? opts.signal : undefined })
             .then(function(rows) {
               console.log("[GeminiAI] Step 2 complete: SQL returned", rows.length, "rows");
               var resultText = formatResults(rows);
@@ -377,7 +385,11 @@ var GeminiAI = (function() {
                 "SQL QUERY EXECUTED:\n" + sql + "\n\n" +
                 "LIVE DATA RESULTS:\n" + resultText;
 
-              return callAI(buildAnswerPrompt(), interpretPrompt, { temperature: 0.7, maxTokens: 1200 })
+              return callAI(buildAnswerPrompt(), interpretPrompt, {
+                temperature: 0.7,
+                maxTokens: 1200,
+                signal: opts && opts.signal ? opts.signal : undefined
+              })
                 .then(function(answer) {
                   console.log("[GeminiAI] Pipeline complete — live data answer ready");
                   return buildStructuredResponse(answer, parsed, sql, "live-db");
@@ -394,7 +406,7 @@ var GeminiAI = (function() {
             .catch(function(sqlErr) {
               console.warn("[GeminiAI] SQL execution failed:", sqlErr.message, "| SQL was:", sql);
               // Include debug info so user can see what went wrong
-              return queryWithModelKnowledge(userMessage, parsed).then(function(resp) {
+              return queryWithModelKnowledge(userMessage, parsed, opts).then(function(resp) {
                 resp.sqlQuery = sql;
                 resp.insight = "SQL execution failed: " + sqlErr.message;
                 return resp;
@@ -412,8 +424,10 @@ var GeminiAI = (function() {
   }
 
   // Fallback: Answer using model knowledge only (no live data)
-  function queryWithModelKnowledge(userMessage, parsed) {
-    return callAI(buildFallbackPrompt(), userMessage)
+  function queryWithModelKnowledge(userMessage, parsed, opts) {
+    return callAI(buildFallbackPrompt(), userMessage, {
+      signal: opts && opts.signal ? opts.signal : undefined
+    })
       .then(function(text) {
         return buildStructuredResponse(text, parsed, null, "gemini");
       });

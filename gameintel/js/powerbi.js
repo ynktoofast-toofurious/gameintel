@@ -278,6 +278,26 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+var activeReportPromptController = null;
+
+function setReportPromptCancelVisible(visible) {
+  var btn = document.getElementById("reportPromptCancelBtn");
+  if (!btn) return;
+  btn.style.display = visible ? "inline-flex" : "none";
+}
+
+function cancelReportPromptRequest() {
+  if (activeReportPromptController) {
+    activeReportPromptController.abort();
+    activeReportPromptController = null;
+  }
+  setReportPromptCancelVisible(false);
+
+  var container = document.getElementById("guideSteps");
+  if (!container) return;
+  container.innerHTML = '<div class="guide-empty"><p>Request cancelled.</p></div>';
+}
+
 // Handle report-page AI prompt
 function processReportPrompt() {
   var input = document.getElementById("reportPromptInput").value.trim();
@@ -290,6 +310,7 @@ function processReportPrompt() {
 
   // Fast path for filter guidance: render local semantic response immediately.
   if (typeof shouldUseFastLocalResponse === "function" && shouldUseFastLocalResponse(input, parsed)) {
+    setReportPromptCancelVisible(false);
     container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem">Applying filters...</p></div>';
     requestAnimationFrame(function() {
       try {
@@ -335,10 +356,20 @@ function processReportPrompt() {
 
   // Use Gemini if available, else offline engine
   if (typeof GeminiAI !== "undefined" && GeminiAI.isAvailable()) {
+    if (activeReportPromptController) activeReportPromptController.abort();
+    activeReportPromptController = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    setReportPromptCancelVisible(true);
+
     container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem"><span class="gemini-thinking">Querying AI &amp; semantic model<span class="dot-pulse">...</span></span></p></div>';
-    GeminiAI.queryStructured(input, parsed).then(function(response) {
+    GeminiAI.queryStructured(input, parsed, {
+      signal: activeReportPromptController ? activeReportPromptController.signal : undefined
+    }).then(function(response) {
       storeAndRender(response);
     }).catch(function(err) {
+      if (err && (err.name === "AbortError" || err.message === "Request cancelled")) {
+        container.innerHTML = '<div class="guide-empty"><p>Request cancelled.</p></div>';
+        return;
+      }
       console.error("[GeminiAI] Failed on report page:", err.message, err.stack || "");
       // Show error instead of silently falling back to hardcoded data
       container.innerHTML = '<div class="guide-ai-answer">' +
@@ -348,8 +379,12 @@ function processReportPrompt() {
         '<p>Check your API key in Settings (gear icon).</p>' +
         '<p style="margin-top:.5rem"><button class="btn btn-primary btn-sm" onclick="processReportPrompt()" style="font-size:.75rem;padding:.25rem .75rem">⟳ Retry</button></p>' +
         '</div></div>';
+    }).finally(function() {
+      activeReportPromptController = null;
+      setReportPromptCancelVisible(false);
     });
   } else {
+    setReportPromptCancelVisible(false);
     container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem">Analyzing...</p></div>';
     setTimeout(function() {
       try {
