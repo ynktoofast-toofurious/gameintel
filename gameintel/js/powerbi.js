@@ -288,6 +288,22 @@ function processReportPrompt() {
 
   var parsed = parsePrompt(input);
 
+  // Fast path for filter guidance: render local semantic response immediately.
+  if (typeof shouldUseFastLocalResponse === "function" && shouldUseFastLocalResponse(input, parsed)) {
+    container.innerHTML = '<div class="guide-loading"><div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div><p class="text-muted" style="font-size:.8125rem;margin-top:.5rem">Applying filters...</p></div>';
+    requestAnimationFrame(function() {
+      try {
+        var fastResponse = semanticQuery(input, parsed);
+        fastResponse.source = "offline";
+        fastResponse.insight = "Applied using local filter parser for faster response.";
+        storeAndRender(fastResponse);
+      } catch (err) {
+        container.innerHTML = '<div class="guide-empty"><p style="color:var(--accent-red)">Could not understand that query.</p><p class="text-muted">Try asking about a team, player, division, or measure.</p></div>';
+      }
+    });
+    return;
+  }
+
   function storeAndRender(response) {
     try {
       var aiData = JSON.stringify({

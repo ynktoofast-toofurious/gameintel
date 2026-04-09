@@ -22,8 +22,8 @@ var GeminiAI = (function() {
     { id: "llama-3.1-8b-instant",    label: "Llama 3.1 8B (Fast)" },
     { id: "mixtral-8x7b-32768",      label: "Mixtral 8x7B" }
   ];
-  var MAX_RETRIES = 2;
-  var RETRY_DELAY_MS = 5000;
+  var MAX_RETRIES = 1;
+  var RETRY_DELAY_MS = 2000;
 
   // ============================================================
   // System Prompts
@@ -283,10 +283,14 @@ var GeminiAI = (function() {
     : "https://gameintel.vercel.app/api/query";
 
   function executeSQL(sqlQuery) {
+    var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    var timeoutId = controller ? setTimeout(function() { controller.abort(); }, 8000) : null;
+
     return fetch(SQL_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: sqlQuery })
+      body: JSON.stringify({ query: sqlQuery }),
+      signal: controller ? controller.signal : undefined
     })
     .then(function(res) {
       if (!res.ok) {
@@ -300,8 +304,16 @@ var GeminiAI = (function() {
       return res.json();
     })
     .then(function(data) {
+      if (timeoutId) clearTimeout(timeoutId);
       if (data.error) throw new Error("SQL error: " + data.error);
       return data.rows || [];
+    })
+    .catch(function(err) {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (err && err.name === "AbortError") {
+        throw new Error("SQL execution timed out after 8 seconds");
+      }
+      throw err;
     });
   }
 

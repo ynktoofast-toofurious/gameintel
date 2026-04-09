@@ -193,6 +193,24 @@ function processPrompt() {
   const parsed = parsePrompt(input);
   applyParsedFilters(parsed);
 
+  // Fast path: filter guidance is handled locally without waiting on LLM/SQL.
+  if (shouldUseFastLocalResponse(input, parsed)) {
+    resultEl.innerHTML = '<span class="prompt-spinner"></span> Applying filters...';
+    requestAnimationFrame(function() {
+      try {
+        var semanticResponse = semanticQuery(input, parsed);
+        semanticResponse.source = "offline";
+        semanticResponse.insight = "Applied using local filter parser for faster response.";
+        renderSemanticResponse(semanticResponse, parsed, resultEl);
+      } catch (err) {
+        console.error("Fast-path filter response error:", err);
+        resultEl.className = "prompt-result error";
+        resultEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Error: ' + err.message;
+      }
+    });
+    return;
+  }
+
   // Use Gemini if available, otherwise fall back to offline AI
   if (typeof GeminiAI !== "undefined" && GeminiAI.isAvailable()) {
     resultEl.innerHTML = '<span class="prompt-spinner"></span> <span class="gemini-thinking">Querying AI &amp; semantic model<span class="dot-pulse">...</span></span>';
@@ -223,6 +241,22 @@ function processPrompt() {
       }
     }, 600);
   }
+}
+
+function shouldUseFastLocalResponse(input, parsed) {
+  if (!parsed) return false;
+
+  var text = String(input || "").toLowerCase();
+  var hasFilterMatch = !!(parsed.team || parsed.division || parsed.player || parsed.dateRange || (parsed.matched && parsed.matched.length));
+  if (!hasFilterMatch) return false;
+
+  // If the user is asking for computed analytics, keep full AI + SQL flow.
+  var analyticsIntent = /(win\s*rate|top\s*\d+|top\s+|bottom\s+|compare|versus|\bvs\b|average|avg|mean|trend|insight|analysis|why|how\s+many|record|points|score|leaders?|rank|rankings?)/i;
+  if (analyticsIntent.test(text)) return false;
+
+  // Fast local path for filter/action phrasing.
+  var filterIntent = /(filter|set|apply|show|only|just|select|for|in|from|today|yesterday|tomorrow|last\s+\d+|next\s+\d+|this\s+season|all\s+season)/i;
+  return filterIntent.test(text) || hasFilterMatch;
 }
 
 function parsePrompt(input) {
